@@ -12,7 +12,7 @@
 
 Name:           HandBrake
 Version:        1.8.2
-Release:        3%{!?tag:.%{date}git%{shortcommit}}%{?dist}
+Release:        4%{!?tag:.%{date}git%{shortcommit}}%{?dist}
 Summary:        An open-source multiplatform video transcoder
 License:        GPLv2+
 URL:            https://handbrake.fr/
@@ -196,6 +196,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %{_bindir}/HandBrakeCLI
 
 %changelog
+* Sat Nov 23 2024 Leigh Scott <leigh123linux@gmail.com> - 1.8.2-4
+- Rebuild for new x265
+
 * Tue Oct 08 2024 Dominik Mierzejewski <dominik@greysector.net> - 1.8.2-3
 - bump to rebuild
 
