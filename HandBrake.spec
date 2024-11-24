@@ -43,6 +43,7 @@ Patch6:         %{name}-no-contribs.patch
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1032972#25
 # Fix https://github.com/HandBrake/HandBrake/issues/4029 with unpatched FFmpeg
 Patch7:         %{name}-save-pts-of-incomplete-subtitle.patch
+Patch8:         x265-header-change-buildfix.patch
 
 BuildRequires:  cmake
 BuildRequires:  desktop-file-utils
@@ -67,7 +68,7 @@ BuildRequires:  libdrm-devel
 BuildRequires:  libdvdnav-devel >= 5.0.1
 BuildRequires:  libdvdread-devel >= 5.0.0
 %if 0%{?_with_vpl:1}
-BuildRequires:  oneVPL-devel
+BuildRequires:  libvpl-devel
 BuildRequires:  libva-devel
 %endif
 BuildRequires:  libsamplerate-devel
@@ -130,6 +131,9 @@ gpgv2 --keyring %{S:2} %{S:1} %{S:0}
 %patch -P5 -p1
 %patch -P6 -p1
 %patch -P7 -p1
+%if 0%{?fedora} > 41
+%patch -P8 -p1
+%endif
 
 # Use system libraries in place of bundled ones
 for module in fdk-aac ffmpeg libdvdnav libdvdread libbluray %{?_with_vpl:libvpl} nvdec nvenc svt-av1 x265; do
@@ -198,6 +202,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %changelog
 * Sat Nov 23 2024 Leigh Scott <leigh123linux@gmail.com> - 1.8.2-4
 - Rebuild for new x265
+- Switch build requires from oneVPL to libvpl
 
 * Tue Oct 08 2024 Dominik Mierzejewski <dominik@greysector.net> - 1.8.2-3
 - bump to rebuild
