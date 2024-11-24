@@ -12,7 +12,7 @@
 
 Name:           HandBrake
 Version:        1.8.2
-Release:        4%{!?tag:.%{date}git%{shortcommit}}%{?dist}
+Release:        5%{!?tag:.%{date}git%{shortcommit}}%{?dist}
 Summary:        An open-source multiplatform video transcoder
 License:        GPLv2+
 URL:            https://handbrake.fr/
@@ -43,6 +43,7 @@ Patch6:         %{name}-no-contribs.patch
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1032972#25
 # Fix https://github.com/HandBrake/HandBrake/issues/4029 with unpatched FFmpeg
 Patch7:         %{name}-save-pts-of-incomplete-subtitle.patch
+# Based on https://github.com/HandBrake/HandBrake/commit/3e6479d666f76a5956bb5ce9a5d85ee8c925bbd3
 Patch8:         x265-header-change-buildfix.patch
 
 BuildRequires:  cmake
@@ -200,6 +201,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %{_bindir}/HandBrakeCLI
 
 %changelog
+* Sun Nov 24 2024 Leigh Scott <leigh123linux@gmail.com> - 1.8.2-5
+- Fix x265 buildfix patch
+
 * Sat Nov 23 2024 Leigh Scott <leigh123linux@gmail.com> - 1.8.2-4
 - Rebuild for new x265
 - Switch build requires from oneVPL to libvpl
