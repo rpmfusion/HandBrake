@@ -12,7 +12,7 @@
 
 Name:           HandBrake
 Version:        1.8.2
-Release:        6%{!?tag:.%{date}git%{shortcommit}}%{?dist}
+Release:        7%{!?tag:.%{date}git%{shortcommit}}%{?dist}
 Summary:        An open-source multiplatform video transcoder
 License:        GPLv2+
 URL:            https://handbrake.fr/
@@ -36,6 +36,7 @@ Patch3:         %{name}-no-libtool-nasm.patch
 # Patches from Debian
 # https://salsa.debian.org/multimedia-team/handbrake/-/raw/master/debian/patches/0001-Remove-embedded-downloaded-copies-of-various-librari.patch
 Patch4:         %{name}-syslibs-link.patch
+# x265 part of
 # https://salsa.debian.org/multimedia-team/handbrake/-/raw/master/debian/patches/0003-Remove-ambient-viewing-support.patch
 Patch5:         %{name}-remove-ambient-viewing-support.patch
 # https://salsa.debian.org/multimedia-team/handbrake/-/raw/master/debian/patches/0004-Do-not-use-contribs.patch
@@ -201,6 +202,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %{_bindir}/HandBrakeCLI
 
 %changelog
+* Tue Mar 25 2025 Dominik Mierzejewski <dominik@greysector.net> - 1.8.2-7
+- drop no longer required patch hunks (amve is supported in FFmpeg 7.0+)
+
 * Tue Jan 28 2025 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 1.8.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_42_Mass_Rebuild
 
