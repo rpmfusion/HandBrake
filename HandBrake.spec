@@ -44,6 +44,8 @@ Patch6:         %{name}-no-contribs.patch
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1032972#25
 # Fix https://github.com/HandBrake/HandBrake/issues/4029 with unpatched FFmpeg
 Patch7:         %{name}-save-pts-of-incomplete-subtitle.patch
+# Based on https://github.com/HandBrake/HandBrake/commit/8b35488e0432d556dc5e5063a77413985c0fef04
+Patch8:         HandBrake-fix-build-with-ffmpeg-7.1.patch
 
 BuildRequires:  cmake
 BuildRequires:  desktop-file-utils
@@ -131,6 +133,7 @@ gpgv2 --keyring %{S:2} %{S:1} %{S:0}
 %patch -P5 -p1
 %patch -P6 -p1
 %patch -P7 -p1
+%patch -P8 -p1
 
 # Use system libraries in place of bundled ones
 for module in fdk-aac ffmpeg libdvdnav libdvdread libbluray %{?_with_vpl:libvpl} nvdec nvenc svt-av1 x265; do
@@ -199,6 +202,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %changelog
 * Tue Mar 25 2025 Dominik Mierzejewski <dominik@greysector.net> - 1.8.2-4
 - drop no longer required patch hunks (amve is supported in FFmpeg 7.0+)
+- fix build with FFmpeg 7.1
 
 * Tue Oct 08 2024 Dominik Mierzejewski <dominik@greysector.net> - 1.8.2-3
 - bump to rebuild

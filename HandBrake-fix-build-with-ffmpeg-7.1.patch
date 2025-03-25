@@ -1,0 +1,17 @@
+diff -up HandBrake-1.8.2/libhb/hbavfilter.c.ff71 HandBrake-1.8.2/libhb/hbavfilter.c
+--- HandBrake-1.8.2/libhb/hbavfilter.c.ff71	2024-08-07 19:31:52.000000000 +0200
++++ HandBrake-1.8.2/libhb/hbavfilter.c	2025-03-25 13:26:32.591760031 +0100
+@@ -278,13 +276,6 @@ void hb_avfilter_graph_update_init(hb_av
+     init->geometry.par.num = link->sample_aspect_ratio.num;
+     init->geometry.par.den = link->sample_aspect_ratio.den;
+     init->pix_fmt          = link->format;
+-    // avfilter can generate "unknown" framerates.  If this happens
+-    // just pass along the source framerate.
+-    if (link->frame_rate.num > 0 && link->frame_rate.den > 0)
+-    {
+-        init->vrate.num        = link->frame_rate.num;
+-        init->vrate.den        = link->frame_rate.den;
+-    }
+ }
+ 
+ int hb_avfilter_add_frame(hb_avfilter_graph_t * graph, AVFrame * frame)
