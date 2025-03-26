@@ -1,0 +1,16 @@
+diff -up HandBrake-1.9.2/libhb/encx265.c.orig HandBrake-1.9.2/libhb/encx265.c
+--- HandBrake-1.9.2/libhb/encx265.c.orig	2025-02-20 19:37:15.000000000 +0100
++++ HandBrake-1.9.2/libhb/encx265.c	2025-03-26 17:14:29.861826355 +0100
+@@ -463,10 +463,10 @@ int encx265Init(hb_work_object_t *w, hb_
+     /* statsfile (but not 2-pass) */
+     if (param->logLevel >= X265_LOG_DEBUG)
+     {
+-        if (param->csvfn[0] == '\0')
++        if (param->csvfn == NULL)
+         {
+             pv->csvfn = hb_get_temporary_filename("x265.csv");
+-            snprintf(param->csvfn, X265_MAX_STRING_SIZE, "%s", pv->csvfn);
++            param->csvfn = strdup(pv->csvfn);
+         }
+         else
+         {
