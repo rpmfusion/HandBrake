@@ -76,7 +76,7 @@ BuildRequires:  libdrm-devel
 BuildRequires:  libdvdnav-devel >= 5.0.1
 BuildRequires:  libdvdread-devel >= 5.0.0
 %if 0%{?_with_vpl:1}
-BuildRequires:  oneVPL-devel
+BuildRequires:  libvpl-devel
 BuildRequires:  libva-devel
 %endif
 BuildRequires:  libsamplerate-devel
