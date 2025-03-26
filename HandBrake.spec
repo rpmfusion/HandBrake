@@ -44,6 +44,12 @@ Patch6:         %{name}-no-contribs.patch
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1032972#25
 # Fix https://github.com/HandBrake/HandBrake/issues/4029 with unpatched FFmpeg
 Patch7:         %{name}-save-pts-of-incomplete-subtitle.patch
+# Revert
+# https://github.com/HandBrake/HandBrake/commit/fb2397df5d25226493e9ec36671469e4906d8842
+# https://github.com/HandBrake/HandBrake/commit/09e99ce641c840686b1b5f860263e89ad7d6651d
+# and part of
+# https://github.com/HandBrake/HandBrake/commit/6f2cd466ef0e029d9e5a51ac8640c3ab64e212f6
+Patch8:         %{name}-remove-ITU-T.35-support.patch
 
 BuildRequires:  cmake
 BuildRequires:  desktop-file-utils
@@ -131,6 +137,7 @@ gpgv2 --keyring %{S:2} %{S:1} %{S:0}
 %patch -P5 -p1
 %patch -P6 -p1
 %patch -P7 -p1
+%patch -P8 -p1
 
 # Use system libraries in place of bundled ones
 for module in fdk-aac ffmpeg libdvdnav libdvdread libbluray %{?_with_vpl:libvpl} nvdec nvenc svt-av1 x265; do
@@ -200,6 +207,8 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 * Wed Mar 26 2025 Dominik Mierzejewski <dominik@greysector.net> - 1.9.2-1
 - update to 1.9.2
 - drop no longer required patch for FFmpeg 7.1 support
+- fix build against upstream FFmpeg by reverting non-upstreamed support
+  for ITU T.35 metadata conversion
 
 * Tue Mar 25 2025 Dominik Mierzejewski <dominik@greysector.net> - 1.8.2-4
 - drop no longer required patch hunks (amve is supported in FFmpeg 7.0+)
