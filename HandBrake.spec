@@ -3,7 +3,7 @@
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global tag %{version}
 
-%ifarch i686 x86_64
+%ifarch %{x86_64}
 %global _with_asm 1
 %global _with_vpl 1
 %endif
