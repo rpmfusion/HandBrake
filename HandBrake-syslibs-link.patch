@@ -109,11 +109,10 @@ index e073a22..5b53474 100644
  ifneq (,$(filter $(HOST.system),cygwin mingw))
  ifneq ($(HAS.iconv),1)
      MODULES += contrib/libiconv
-diff --git a/test/module.defs b/test/module.defs
-index 9f803c4..97ac6c0 100644
---- a/test/module.defs
-+++ b/test/module.defs
-@@ -25,6 +25,12 @@ TEST.pkgconfig_libs += $(foreach m,$(MODULES.NAMES),$($m.OSL.libs))
+diff -up HandBrake-1.10.2/test/module.defs.orig2 HandBrake-1.10.2/test/module.defs
+--- HandBrake-1.10.2/test/module.defs.orig2	2025-09-06 07:23:39.000000000 +0200
++++ HandBrake-1.10.2/test/module.defs	2025-09-29 20:16:42.072659391 +0200
+@@ -25,6 +25,12 @@ TEST.pkgconfig_libs += $(foreach m,$(MOD
  ifeq (1,$(FEATURE.flatpak))
      TEST.pkgconfig_libs += glib-2.0
  endif
