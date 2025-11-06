@@ -50,6 +50,8 @@ Patch7:         %{name}-save-pts-of-incomplete-subtitle.patch
 # and part of
 # https://github.com/HandBrake/HandBrake/commit/6f2cd466ef0e029d9e5a51ac8640c3ab64e212f6
 Patch8:         %{name}-remove-ITU-T.35-support.patch
+# https://github.com/HandBrake/HandBrake/commit/c7867ba49bb9fc22414170c89f9834d4442a8642
+Patch9:         %{name}-ffmpeg8.patch
 
 BuildRequires:  cmake
 BuildRequires:  desktop-file-utils
@@ -138,6 +140,7 @@ gpgv2 --keyring %{S:2} %{S:1} %{S:0}
 %patch -P6 -p1
 %patch -P7 -p1
 %patch -P8 -p1
+%patch -P9 -p1 -b .ffmpeg8
 
 # Use system libraries in place of bundled ones
 for module in fdk-aac ffmpeg libdvdnav libdvdread libbluray %{?_with_vpl:libvpl} nvdec nvenc svt-av1 x265; do
@@ -206,6 +209,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %changelog
 * Wed Nov 05 2025 Leigh Scott <leigh123linux@gmail.com> - 1.10.2-2
 - Rebuild for ffmpeg-8.0
+- Apply upstream patch to fix build (rathann)
 
 * Mon Sep 29 2025 Robert-André Mauchin <zebob.m@gmail.com> - 1.10.2-1
 - Update to 1.10.2

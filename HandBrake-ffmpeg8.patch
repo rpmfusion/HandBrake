@@ -1,0 +1,3430 @@
+From c7867ba49bb9fc22414170c89f9834d4442a8642 Mon Sep 17 00:00:00 2001
+From: Damiano Galassi <galad87@users.noreply.github.com>
+Date: Fri, 29 Aug 2025 17:03:53 +0200
+Subject: [PATCH] contrib: update to FFmpeg 8 (#7201)
+
+---
+ ...ead-name-track-tag-written-by-movenc.patch |  55 +-
+ ...A02-movenc-write-3gpp-track-titl-tag.patch |  14 +-
+ .../ffmpeg/A03-mov-read-3gpp-udta-tags.patch  |  12 +-
+ ...p-track-names-tags-for-all-available.patch |  10 +-
+ ...add-support-audio-fallback-track-ref.patch |  29 +-
+ ...-and-write-additional-iTunes-style-.patch} |  32 +-
+ ...rite-iTunEXTC-and-iTunMOVI-metadata.patch} |  10 +-
+ ...c-fix-processing-of-partial-packets.patch} |  21 +-
+ ...dsubdec-return-number-of-bytes-used.patch} |  10 +-
+ ...dvdsubdec-use-pts-of-initial-packet.patch} |  16 +-
+ ...option-to-output-subtitles-with-emp.patch} |  10 +-
+ ...ption_dec-fix-pts-in-real_time-mode.patch} |  10 +-
+ ...enc-return-error-if-aac-extradata-c.patch} |   8 +-
+ ...uv420p-to-p01xle-color-conversion-bu.patch |  37 -
+ ...odified-Dolby-Vision-RPU-T35-buffers.patch | 108 +++
+ ...annexb.c-fix-qsv-decode-of-10bit-hdr.patch |  40 -
+ ...odified-Dolby-Vision-RPU-T35-buffers.patch | 108 ---
+ ...bdec-Add-graphic-plane-and-cropping.patch} |  40 +-
+ ...Add-support-for-on-demand-key-frames.patch | 120 ---
+ ....c-update-has_b_frames-value-after-.patch} |   8 +-
+ ...roperly-set-primaries-transfer-and-m.patch | 271 -------
+ ...scc.patch => A17-qsv-enable-av1-scc.patch} |  12 +-
+ ...xed-BT2020-BT709-conversion-via-VPP.patch} |   8 +-
+ ...ble-H.264-10-bit-on-Intel-macOS-it-.patch} |   8 +-
+ ...> A20-videotoolbox-speedup-decoding.patch} |  28 +-
+ ...dec-amfenc-GPU-driver-version-check.patch} |  12 +-
+ ...apters-track-extradata-is-not-null-a.patch |  30 +
+ contrib/ffmpeg/A24-AV1-videotoolbox.patch     | 387 ---------
+ .../ffmpeg/A28-enable-av1_mf-encoder.patch    |  65 --
+ ...mos-ComplexityIndex-for-MP4-remuxing.patch | 751 ------------------
+ contrib/ffmpeg/module.defs                    |   7 +-
+ libhb/encavcodec.c                            |   2 +-
+ libhb/encavcodecaudio.c                       |   2 +-
+ libhb/hbavfilter.c                            |  85 +-
+ libhb/hwaccel.c                               |   3 +
+ 35 files changed, 336 insertions(+), 2033 deletions(-)
+ rename contrib/ffmpeg/{A22-avformat-mov-read-and-write-additional-iTunes-style-.patch => A06-avformat-mov-read-and-write-additional-iTunes-style-.patch} (93%)
+ rename contrib/ffmpeg/{A23-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch => A07-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch} (88%)
+ rename contrib/ffmpeg/{A06-dvdsubdec-fix-processing-of-partial-packets.patch => A08-dvdsubdec-fix-processing-of-partial-packets.patch} (73%)
+ rename contrib/ffmpeg/{A07-dvdsubdec-return-number-of-bytes-used.patch => A09-dvdsubdec-return-number-of-bytes-used.patch} (72%)
+ rename contrib/ffmpeg/{A08-dvdsubdec-use-pts-of-initial-packet.patch => A10-dvdsubdec-use-pts-of-initial-packet.patch} (79%)
+ rename contrib/ffmpeg/{A09-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch => A11-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch} (84%)
+ rename contrib/ffmpeg/{A10-ccaption_dec-fix-pts-in-real_time-mode.patch => A12-ccaption_dec-fix-pts-in-real_time-mode.patch} (79%)
+ rename contrib/ffmpeg/{A11-avformat-matroskaenc-return-error-if-aac-extradata-c.patch => A13-avformat-matroskaenc-return-error-if-aac-extradata-c.patch} (85%)
+ delete mode 100644 contrib/ffmpeg/A13-libswscale-fix-yuv420p-to-p01xle-color-conversion-bu.patch
+ create mode 100644 contrib/ffmpeg/A14-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch
+ delete mode 100644 contrib/ffmpeg/A14-hevc_mp4toannexb.c-fix-qsv-decode-of-10bit-hdr.patch
+ delete mode 100644 contrib/ffmpeg/A15-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch
+ rename contrib/ffmpeg/{A21-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch => A15-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch} (96%)
+ delete mode 100644 contrib/ffmpeg/A16-avcodec-amfenc-Add-support-for-on-demand-key-frames.patch
+ rename contrib/ffmpeg/{A18-libavcodec-qsvenc-update-has_b_frames-value.patch => A16-libavcodec-qsvenc.c-update-has_b_frames-value-after-.patch} (77%)
+ delete mode 100644 contrib/ffmpeg/A17-avcodec-amfenc-properly-set-primaries-transfer-and-m.patch
+ rename contrib/ffmpeg/{A19-libavcodec-qsv-enable-av1-scc.patch => A17-qsv-enable-av1-scc.patch} (96%)
+ rename contrib/ffmpeg/{A30-qsv-fixed-BT2020-BT709-conversion.patch => A18-fixed-BT2020-BT709-conversion-via-VPP.patch} (89%)
+ rename contrib/ffmpeg/{A12-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch => A19-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch} (83%)
+ rename contrib/ffmpeg/{A25-videotoolbox-speedup-decoding.patch => A20-videotoolbox-speedup-decoding.patch} (83%)
+ rename contrib/ffmpeg/{A20-Revert-avcodec-amfenc-GPU-driver-version-check.patch => A21-Revert-avcodec-amfenc-GPU-driver-version-check.patch} (59%)
+ create mode 100644 contrib/ffmpeg/A22-movenc-ensure-chapters-track-extradata-is-not-null-a.patch
+ delete mode 100644 contrib/ffmpeg/A24-AV1-videotoolbox.patch
+ delete mode 100644 contrib/ffmpeg/A28-enable-av1_mf-encoder.patch
+ delete mode 100644 contrib/ffmpeg/A31-Parse-EAC3-Atmos-ComplexityIndex-for-MP4-remuxing.patch
+
+diff --git a/contrib/ffmpeg/A01-mov-read-name-track-tag-written-by-movenc.patch b/contrib/ffmpeg/A01-mov-read-name-track-tag-written-by-movenc.patch
+index 88447cad57e2..0f1f06dc37e1 100644
+--- a/contrib/ffmpeg/A01-mov-read-name-track-tag-written-by-movenc.patch
++++ b/contrib/ffmpeg/A01-mov-read-name-track-tag-written-by-movenc.patch
+@@ -1,25 +1,17 @@
+-From a7151fbff5325b0d62028c7e921780f83554a56b Mon Sep 17 00:00:00 2001
++From a6e134197eaf4c448f47327309c030d14df13172 Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+-Date: Wed, 20 Mar 2024 09:07:15 +0100
+-Subject: [PATCH 01/16] mov: read 'name' track tag written by movenc.
++Date: Fri, 29 Aug 2025 09:52:13 +0200
++Subject: [PATCH 01/22] mov: read 'name' track tag written by movenc
+ 
+ ---
+- libavformat/mov.c | 26 +++++++++++++++++---------
+- 1 file changed, 17 insertions(+), 9 deletions(-)
++ libavformat/mov.c | 1 +
++ 1 file changed, 1 insertion(+)
+ 
+ diff --git a/libavformat/mov.c b/libavformat/mov.c
+-index a2333ac1fd..734de0a294 100644
++index b29c41a6b6..6ce554ad07 100644
+ --- a/libavformat/mov.c
+ +++ b/libavformat/mov.c
+-@@ -338,6 +338,7 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+-     int (*parse)(MOVContext*, AVIOContext*, unsigned, const char*) = NULL;
+-     int raw = 0;
+-     int num = 0;
+-+    AVDictionary *metadata;
+- 
+-     switch (atom.type) {
+-     case MKTAG( '@','P','R','M'): key = "premiere_version"; raw = 1; break;
+-@@ -370,6 +371,7 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -391,6 +391,7 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+          return mov_metadata_loci(c, pb, atom.size);
+      case MKTAG( 'm','a','n','u'): key = "make"; break;
+      case MKTAG( 'm','o','d','l'): key = "model"; break;
+@@ -27,39 +19,6 @@ index a2333ac1fd..734de0a294 100644
+      case MKTAG( 'p','c','s','t'): key = "podcast";
+          parse = mov_metadata_int8_no_padding; break;
+      case MKTAG( 'p','g','a','p'): key = "gapless_playback";
+-@@ -555,17 +557,23 @@ retry:
+-             }
+-             str[str_size] = 0;
+-         }
+--        c->fc->event_flags |= AVFMT_EVENT_FLAG_METADATA_UPDATED;
+--        av_dict_set(&c->fc->metadata, key, str, 0);
+-+        if (c->trak_index < 0) {
+-+            metadata = c->fc->metadata;
+-+            c->fc->event_flags |= AVFMT_EVENT_FLAG_METADATA_UPDATED;
+-+            if (!strcmp(key, "encoder")) {
+-+                int major, minor, micro;
+-+                if (sscanf(str, "HandBrake %d.%d.%d", &major, &minor, &micro) == 3) {
+-+                    c->handbrake_version = 1000000*major + 1000*minor + micro;
+-+                }
+-+            }
+-+        }
+-+        else {
+-+            metadata = c->fc->streams[c->trak_index]->metadata;
+-+        }
+-+        av_dict_set(&metadata, key, str, 0);
+-         if (*language && strcmp(language, "und")) {
+-             snprintf(key2, sizeof(key2), "%s-%s", key, language);
+--            av_dict_set(&c->fc->metadata, key2, str, 0);
+--        }
+--        if (!strcmp(key, "encoder")) {
+--            int major, minor, micro;
+--            if (sscanf(str, "HandBrake %d.%d.%d", &major, &minor, &micro) == 3) {
+--                c->handbrake_version = 1000000*major + 1000*minor + micro;
+--            }
+-+            av_dict_set(&metadata, key2, str, 0);
+-         }
+-     }
+- 
+ -- 
+ 2.39.5 (Apple Git-154)
+ 
+diff --git a/contrib/ffmpeg/A02-movenc-write-3gpp-track-titl-tag.patch b/contrib/ffmpeg/A02-movenc-write-3gpp-track-titl-tag.patch
+index 18f63959a307..2b2d5aa17755 100644
+--- a/contrib/ffmpeg/A02-movenc-write-3gpp-track-titl-tag.patch
++++ b/contrib/ffmpeg/A02-movenc-write-3gpp-track-titl-tag.patch
+@@ -1,7 +1,7 @@
+-From 5edf4807db4474da366895be5bcd3d9227afa2eb Mon Sep 17 00:00:00 2001
++From b1ea22c23e3f5f6db08a9fa48cbe7697fe806b9c Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+ Date: Wed, 20 Mar 2024 09:08:52 +0100
+-Subject: [PATCH 02/16] movenc: write 3gpp track 'titl' tag
++Subject: [PATCH 02/22] movenc: write 3gpp track 'titl' tag
+ 
+ Apple software used to use 'name' raw tag for track titles.  When they rewrote everything with AVFoundation, they switched to using 3gpp 'titl' tag for track titles and 'name' no longer works.
+ ---
+@@ -9,10 +9,10 @@ Apple software used to use 'name' raw tag for track titles.  When they rewrote e
+  1 file changed, 39 insertions(+), 38 deletions(-)
+ 
+ diff --git a/libavformat/movenc.c b/libavformat/movenc.c
+-index d20e45cf81..c526658bb1 100644
++index 585a018e35..9511142708 100644
+ --- a/libavformat/movenc.c
+ +++ b/libavformat/movenc.c
+-@@ -4051,6 +4051,34 @@ static int mov_write_udta_sdp(AVIOContext *pb, MOVTrack *track)
++@@ -4169,6 +4169,34 @@ static int mov_write_udta_sdp(AVIOContext *pb, MOVTrack *track)
+      return len + 24;
+  }
+  
+@@ -47,7 +47,7 @@ index d20e45cf81..c526658bb1 100644
+  static int mov_write_track_metadata(AVIOContext *pb, AVStream *st,
+                                      const char *tag, const char *str)
+  {
+-@@ -4125,8 +4153,10 @@ static int mov_write_track_udta_tag(AVIOContext *pb, MOVMuxContext *mov,
++@@ -4243,8 +4271,10 @@ static int mov_write_track_udta_tag(AVIOContext *pb, MOVMuxContext *mov,
+      if (ret < 0)
+          return ret;
+  
+@@ -59,7 +59,7 @@ index d20e45cf81..c526658bb1 100644
+  
+      if (mov->mode & MODE_MP4) {
+          if ((ret = mov_write_track_kinds(pb_buf, st)) < 0)
+-@@ -4723,35 +4753,6 @@ static int ascii_to_wc(AVIOContext *pb, const uint8_t *b)
++@@ -4841,35 +4871,6 @@ static int ascii_to_wc(AVIOContext *pb, const uint8_t *b)
+      return 0;
+  }
+  
+@@ -95,7 +95,7 @@ index d20e45cf81..c526658bb1 100644
+  static int mov_write_chpl_tag(AVIOContext *pb, AVFormatContext *s)
+  {
+      int64_t pos = avio_tell(pb);
+-@@ -4790,14 +4791,14 @@ static int mov_write_udta_tag(AVIOContext *pb, MOVMuxContext *mov,
++@@ -4908,14 +4909,14 @@ static int mov_write_udta_tag(AVIOContext *pb, MOVMuxContext *mov,
+          return ret;
+  
+      if (mov->mode & MODE_3GP) {
+diff --git a/contrib/ffmpeg/A03-mov-read-3gpp-udta-tags.patch b/contrib/ffmpeg/A03-mov-read-3gpp-udta-tags.patch
+index ccad76147cf3..3c8ed221f91e 100644
+--- a/contrib/ffmpeg/A03-mov-read-3gpp-udta-tags.patch
++++ b/contrib/ffmpeg/A03-mov-read-3gpp-udta-tags.patch
+@@ -1,14 +1,14 @@
+-From 05fcb953565349fb785e5eec3a464c5efaa2d540 Mon Sep 17 00:00:00 2001
++From c671e7006e811d5440747d30619f01428bb202f3 Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+ Date: Wed, 20 Mar 2024 09:09:41 +0100
+-Subject: [PATCH 03/16] mov: read 3gpp udta tags.
++Subject: [PATCH 03/22] mov: read 3gpp udta tags.
+ 
+ ---
+  libavformat/mov.c | 101 ++++++++++++++++++++++++++++++++++++++++++++--
+  1 file changed, 98 insertions(+), 3 deletions(-)
+ 
+ diff --git a/libavformat/mov.c b/libavformat/mov.c
+-index 734de0a294..cdeb35d9db 100644
++index 6ce554ad07..eb067c756c 100644
+ --- a/libavformat/mov.c
+ +++ b/libavformat/mov.c
+ @@ -56,6 +56,7 @@
+@@ -19,7 +19,7 @@ index 734de0a294..cdeb35d9db 100644
+  #include "internal.h"
+  #include "avio_internal.h"
+  #include "demux.h"
+-@@ -326,6 +327,73 @@ static int mov_metadata_hmmt(MOVContext *c, AVIOContext *pb, unsigned len)
++@@ -341,6 +342,73 @@ static int mov_metadata_hmmt(MOVContext *c, AVIOContext *pb, unsigned len)
+      return 0;
+  }
+  
+@@ -93,7 +93,7 @@ index 734de0a294..cdeb35d9db 100644
+  static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+  {
+      char tmp_key[AV_FOURCC_MAX_STRING_SIZE] = {0};
+-@@ -352,15 +420,33 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -372,15 +440,33 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+      case MKTAG( 'c','a','t','g'): key = "category"; break;
+      case MKTAG( 'c','p','i','l'): key = "compilation";
+          parse = mov_metadata_int8_no_padding; break;
+@@ -130,7 +130,7 @@ index 734de0a294..cdeb35d9db 100644
+      case MKTAG( 'h','d','v','d'): key = "hd_video";
+          parse = mov_metadata_int8_no_padding; break;
+      case MKTAG( 'H','M','M','T'):
+-@@ -431,6 +517,15 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -451,6 +537,15 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+      case MKTAG(0xa9,'w','r','n'): key = "warning";   break;
+      case MKTAG(0xa9,'w','r','t'): key = "composer";  break;
+      case MKTAG(0xa9,'x','y','z'): key = "location";  break;
+diff --git a/contrib/ffmpeg/A04-movenc-write-3gpp-track-names-tags-for-all-available.patch b/contrib/ffmpeg/A04-movenc-write-3gpp-track-names-tags-for-all-available.patch
+index d8fafd19295c..4ef90354dad7 100644
+--- a/contrib/ffmpeg/A04-movenc-write-3gpp-track-names-tags-for-all-available.patch
++++ b/contrib/ffmpeg/A04-movenc-write-3gpp-track-names-tags-for-all-available.patch
+@@ -1,7 +1,7 @@
+-From 051ca757f9e71da22e2fca0ec833f450d4908ecf Mon Sep 17 00:00:00 2001
++From a0bc1d9da78919c74021a3a5710001a1a295fb64 Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+ Date: Wed, 20 Mar 2024 09:10:27 +0100
+-Subject: [PATCH 04/16] movenc: write 3gpp track names tags for all available
++Subject: [PATCH 04/22] movenc: write 3gpp track names tags for all available
+  languages
+ 
+ Metadata keys can have a language suffix.  Iterate through all language variations of the metadata key.
+@@ -10,7 +10,7 @@ Metadata keys can have a language suffix.  Iterate through all language variatio
+  1 file changed, 23 insertions(+), 2 deletions(-)
+ 
+ diff --git a/libavformat/movenc.c b/libavformat/movenc.c
+-index c526658bb1..3486c6e3e5 100644
++index 9511142708..e60483ebb4 100644
+ --- a/libavformat/movenc.c
+ +++ b/libavformat/movenc.c
+ @@ -28,6 +28,7 @@
+@@ -21,7 +21,7 @@ index c526658bb1..3486c6e3e5 100644
+  #include "avio_internal.h"
+  #include "dovi_isom.h"
+  #include "riff.h"
+-@@ -4070,7 +4071,14 @@ static int mov_write_3gp_udta_tag(AVIOContext *pb, AVDictionary *metadata,
++@@ -4188,7 +4189,14 @@ static int mov_write_3gp_udta_tag(AVIOContext *pb, AVDictionary *metadata,
+      if (!strcmp(tag, "yrrc"))
+          avio_wb16(pb, atoi(t->value));
+      else {
+@@ -37,7 +37,7 @@ index c526658bb1..3486c6e3e5 100644
+          avio_write(pb, t->value, strlen(t->value) + 1); /* UTF8 string value */
+          if (!strcmp(tag, "albm") &&
+              (t = av_dict_get(metadata, "track", NULL, 0)))
+-@@ -4154,8 +4162,21 @@ static int mov_write_track_udta_tag(AVIOContext *pb, MOVMuxContext *mov,
++@@ -4272,8 +4280,21 @@ static int mov_write_track_udta_tag(AVIOContext *pb, MOVMuxContext *mov,
+          return ret;
+  
+      if (mov->mode & (MODE_MP4|MODE_MOV)) {
+diff --git a/contrib/ffmpeg/A05-avformat-mov-add-support-audio-fallback-track-ref.patch b/contrib/ffmpeg/A05-avformat-mov-add-support-audio-fallback-track-ref.patch
+index 88806df687a4..eef82d7ddabc 100644
+--- a/contrib/ffmpeg/A05-avformat-mov-add-support-audio-fallback-track-ref.patch
++++ b/contrib/ffmpeg/A05-avformat-mov-add-support-audio-fallback-track-ref.patch
+@@ -1,18 +1,18 @@
+-From 7950f206991fdf2cdaade40f44f06158091a9f83 Mon Sep 17 00:00:00 2001
++From d9869798a86094e5eaa8b6454bae1093f67e1058 Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+ Date: Fri, 12 Apr 2024 10:06:24 -0600
+-Subject: [PATCH 05/16] avformat/mov: add support audio fallback track ref
++Subject: [PATCH 05/22] avformat/mov: add support audio fallback track ref
+ 
+ ---
+  libavformat/isom.h |  3 +++
+- libavformat/mov.c  | 35 +++++++++++++++++++++++++++++++++++
+- 2 files changed, 38 insertions(+)
++ libavformat/mov.c  | 34 ++++++++++++++++++++++++++++++++++
++ 2 files changed, 37 insertions(+)
+ 
+ diff --git a/libavformat/isom.h b/libavformat/isom.h
+-index 4723397048..82429c8b79 100644
++index 94c9c65989..41e4b66f32 100644
+ --- a/libavformat/isom.h
+ +++ b/libavformat/isom.h
+-@@ -272,6 +272,9 @@ typedef struct MOVStreamContext {
++@@ -282,6 +282,9 @@ typedef struct MOVStreamContext {
+          MOVEncryptionIndex *encryption_index;
+      } cenc;
+  
+@@ -20,13 +20,13 @@ index 4723397048..82429c8b79 100644
+ +    int fallback;
+ +
+      struct IAMFDemuxContext *iamf;
++     int iamf_stream_offset;
+  } MOVStreamContext;
+- 
+ diff --git a/libavformat/mov.c b/libavformat/mov.c
+-index cdeb35d9db..e1e668e40c 100644
++index eb067c756c..d419e5457e 100644
+ --- a/libavformat/mov.c
+ +++ b/libavformat/mov.c
+-@@ -9143,6 +9143,23 @@ fail:
++@@ -9421,6 +9421,22 @@ fail:
+      return ret;
+  }
+  
+@@ -45,12 +45,11 @@ index cdeb35d9db..e1e668e40c 100644
+ +
+ +    return 0;
+ +}
+-+
+ +
+  static const MOVParseTableEntry mov_default_parse_table[] = {
+  { MKTAG('A','C','L','R'), mov_read_aclr },
+  { MKTAG('A','P','R','G'), mov_read_avid },
+-@@ -9245,6 +9262,7 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
++@@ -9523,6 +9539,7 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
+  { MKTAG('v','p','c','C'), mov_read_vpcc },
+  { MKTAG('m','d','c','v'), mov_read_mdcv },
+  { MKTAG('c','l','l','i'), mov_read_clli },
+@@ -58,7 +57,7 @@ index cdeb35d9db..e1e668e40c 100644
+  { MKTAG('d','v','c','C'), mov_read_dvcc_dvvc },
+  { MKTAG('d','v','v','C'), mov_read_dvcc_dvvc },
+  { MKTAG('d','v','w','C'), mov_read_dvcc_dvvc },
+-@@ -10409,6 +10427,23 @@ static int mov_read_header(AVFormatContext *s)
++@@ -10868,6 +10885,23 @@ static int mov_read_header(AVFormatContext *s)
+              err = ff_replaygain_export(st, s->metadata);
+              if (err < 0)
+                  return err;
+@@ -68,9 +67,9 @@ index cdeb35d9db..e1e668e40c 100644
+ +                        AVPacketSideData *sd;
+ +                        int *fallback;
+ +                        sd = av_packet_side_data_new(&st->codecpar->coded_side_data,
+-+                                 &st->codecpar->nb_coded_side_data,
+-+                                 AV_PKT_DATA_FALLBACK_TRACK,
+-+                                 sizeof(int), 0);
+++                                    &st->codecpar->nb_coded_side_data,
+++                                    AV_PKT_DATA_FALLBACK_TRACK,
+++                                    sizeof(int), 0);
+ +                        if (!sd)
+ +                            return AVERROR(ENOMEM);
+ +                        fallback = (int*)sd->data;
+diff --git a/contrib/ffmpeg/A22-avformat-mov-read-and-write-additional-iTunes-style-.patch b/contrib/ffmpeg/A06-avformat-mov-read-and-write-additional-iTunes-style-.patch
+similarity index 93%
+rename from contrib/ffmpeg/A22-avformat-mov-read-and-write-additional-iTunes-style-.patch
+rename to contrib/ffmpeg/A06-avformat-mov-read-and-write-additional-iTunes-style-.patch
+index 9ccb872e7451..baa8b85eaa99 100644
+--- a/contrib/ffmpeg/A22-avformat-mov-read-and-write-additional-iTunes-style-.patch
++++ b/contrib/ffmpeg/A06-avformat-mov-read-and-write-additional-iTunes-style-.patch
+@@ -1,7 +1,7 @@
+-From b62c3a69a5f286eee2be4d14cf3705c476a953a4 Mon Sep 17 00:00:00 2001
++From a03bd0278cb3acacda675e81d752d90ff11562f5 Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Tue, 18 Feb 2025 07:32:08 +0100
+-Subject: [PATCH 1/2] avformat/mov: read and write additional iTunes style
++Subject: [PATCH 06/22] avformat/mov: read and write additional iTunes style
+  metadata
+ 
+ ---
+@@ -10,10 +10,10 @@ Subject: [PATCH 1/2] avformat/mov: read and write additional iTunes style
+  2 files changed, 132 insertions(+), 5 deletions(-)
+ 
+ diff --git a/libavformat/mov.c b/libavformat/mov.c
+-index e1e668e40c..e64b0dbe63 100644
++index d419e5457e..c21130dde2 100644
+ --- a/libavformat/mov.c
+ +++ b/libavformat/mov.c
+-@@ -132,6 +132,33 @@ static int mov_metadata_int8_no_padding(MOVContext *c, AVIOContext *pb,
++@@ -131,6 +131,33 @@ static int mov_metadata_int8_no_padding(MOVContext *c, AVIOContext *pb,
+      return 0;
+  }
+  
+@@ -47,7 +47,7 @@ index e1e668e40c..e64b0dbe63 100644
+  static int mov_metadata_gnre(MOVContext *c, AVIOContext *pb,
+                               unsigned len, const char *key)
+  {
+-@@ -417,7 +444,13 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -437,7 +464,13 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+      case MKTAG( 'a','k','I','D'): key = "account_type";
+          parse = mov_metadata_int8_no_padding; break;
+      case MKTAG( 'a','p','I','D'): key = "account_id"; break;
+@@ -61,7 +61,7 @@ index e1e668e40c..e64b0dbe63 100644
+      case MKTAG( 'c','p','i','l'): key = "compilation";
+          parse = mov_metadata_int8_no_padding; break;
+      case MKTAG( 'c','p','r','t'):
+-@@ -436,6 +469,8 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -456,6 +489,8 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+      case MKTAG( 'e','g','i','d'): key = "episode_uid";
+          parse = mov_metadata_int8_no_padding; break;
+      case MKTAG( 'F','I','R','M'): key = "firmware"; raw = 1; break;
+@@ -70,7 +70,7 @@ index e1e668e40c..e64b0dbe63 100644
+      case MKTAG( 'g','n','r','e'):
+          key = "genre";
+          parse = mov_metadata_gnre;
+-@@ -451,6 +486,8 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -471,6 +506,8 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+          parse = mov_metadata_int8_no_padding; break;
+      case MKTAG( 'H','M','M','T'):
+          return mov_metadata_hmmt(c, pb, atom.size);
+@@ -79,7 +79,7 @@ index e1e668e40c..e64b0dbe63 100644
+      case MKTAG( 'k','e','y','w'): key = "keywords";  break;
+      case MKTAG( 'l','d','e','s'): key = "synopsis";  break;
+      case MKTAG( 'l','o','c','i'):
+-@@ -462,9 +499,16 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -482,9 +519,16 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+          parse = mov_metadata_int8_no_padding; break;
+      case MKTAG( 'p','g','a','p'): key = "gapless_playback";
+          parse = mov_metadata_int8_no_padding; break;
+@@ -96,7 +96,7 @@ index e1e668e40c..e64b0dbe63 100644
+      case MKTAG( 's','o','a','a'): key = "sort_album_artist"; break;
+      case MKTAG( 's','o','a','l'): key = "sort_album";   break;
+      case MKTAG( 's','o','a','r'): key = "sort_artist";  break;
+-@@ -473,6 +517,8 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -493,6 +537,8 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+      case MKTAG( 's','o','s','n'): key = "sort_show";    break;
+      case MKTAG( 's','t','i','k'): key = "media_type";
+          parse = mov_metadata_int8_no_padding; break;
+@@ -105,7 +105,7 @@ index e1e668e40c..e64b0dbe63 100644
+      case MKTAG( 't','r','k','n'): key = "track";
+          parse = mov_metadata_track_or_disc_number; break;
+      case MKTAG( 't','v','e','n'): key = "episode_id"; break;
+-@@ -482,17 +528,23 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -502,17 +548,23 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+      case MKTAG( 't','v','s','h'): key = "show";      break;
+      case MKTAG( 't','v','s','n'): key = "season_number";
+          parse = mov_metadata_int8_bypass_padding; break;
+@@ -130,7 +130,7 @@ index e1e668e40c..e64b0dbe63 100644
+      case MKTAG(0xa9,'e','d','1'): key = "edit_date"; break;
+      case MKTAG(0xa9,'e','n','c'): key = "encoder";   break;
+      case MKTAG(0xa9,'f','m','t'): key = "original_format"; break;
+-@@ -500,22 +552,35 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++@@ -520,22 +572,35 @@ static int mov_read_udta_string(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+      case MKTAG(0xa9,'g','r','p'): key = "grouping";  break;
+      case MKTAG(0xa9,'h','s','t'): key = "host_computer"; break;
+      case MKTAG(0xa9,'i','n','f'): key = "comment";   break;
+@@ -167,10 +167,10 @@ index e1e668e40c..e64b0dbe63 100644
+      case MKTAG( 'a','l','b','m'):
+      case MKTAG( 'a','u','t','h'):
+ diff --git a/libavformat/movenc.c b/libavformat/movenc.c
+-index 3486c6e3e5..11df7b0368 100644
++index e60483ebb4..e058b06280 100644
+ --- a/libavformat/movenc.c
+ +++ b/libavformat/movenc.c
+-@@ -4557,15 +4557,19 @@ static int mov_write_int8_metadata(AVFormatContext *s, AVIOContext *pb,
++@@ -4675,15 +4675,19 @@ static int mov_write_int8_metadata(AVFormatContext *s, AVIOContext *pb,
+                                     int len)
+  {
+      AVDictionaryEntry *t = NULL;
+@@ -193,7 +193,7 @@ index 3486c6e3e5..11df7b0368 100644
+  
+      avio_wb32(pb, size);
+      ffio_wfourcc(pb, name);
+-@@ -4573,7 +4577,9 @@ static int mov_write_int8_metadata(AVFormatContext *s, AVIOContext *pb,
++@@ -4691,7 +4695,9 @@ static int mov_write_int8_metadata(AVFormatContext *s, AVIOContext *pb,
+      ffio_wfourcc(pb, "data");
+      avio_wb32(pb, 0x15);
+      avio_wb32(pb, 0);
+@@ -204,7 +204,7 @@ index 3486c6e3e5..11df7b0368 100644
+      else        avio_w8 (pb, num);
+  
+      return size;
+-@@ -4629,6 +4635,8 @@ static int mov_write_ilst_tag(AVIOContext *pb, MOVMuxContext *mov,
++@@ -4747,6 +4753,8 @@ static int mov_write_ilst_tag(AVIOContext *pb, MOVMuxContext *mov,
+      mov_write_string_metadata(s, pb, "\251lyr", "lyrics"   , 1);
+      mov_write_string_metadata(s, pb, "desc",    "description",1);
+      mov_write_string_metadata(s, pb, "ldes",    "synopsis" , 1);
+@@ -213,7 +213,7 @@ index 3486c6e3e5..11df7b0368 100644
+      mov_write_string_metadata(s, pb, "tvsh",    "show"     , 1);
+      mov_write_string_metadata(s, pb, "tven",    "episode_id",1);
+      mov_write_string_metadata(s, pb, "tvnn",    "network"  , 1);
+-@@ -4639,6 +4647,60 @@ static int mov_write_ilst_tag(AVIOContext *pb, MOVMuxContext *mov,
++@@ -4757,6 +4765,60 @@ static int mov_write_ilst_tag(AVIOContext *pb, MOVMuxContext *mov,
+      mov_write_int8_metadata  (s, pb, "hdvd",    "hd_video",  1);
+      mov_write_int8_metadata  (s, pb, "pgap",    "gapless_playback",1);
+      mov_write_int8_metadata  (s, pb, "cpil",    "compilation", 1);
+diff --git a/contrib/ffmpeg/A23-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch b/contrib/ffmpeg/A07-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch
+similarity index 88%
+rename from contrib/ffmpeg/A23-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch
+rename to contrib/ffmpeg/A07-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch
+index aa06ac2edf23..d68f07f5a35c 100644
+--- a/contrib/ffmpeg/A23-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch
++++ b/contrib/ffmpeg/A07-avformat-movenc-write-iTunEXTC-and-iTunMOVI-metadata.patch
+@@ -1,17 +1,17 @@
+-From 2f4b1e3b6818ade62ae19e0abdcefdd50d401ad8 Mon Sep 17 00:00:00 2001
++From 9dc141ed29b5e713590492c6d662a5802327e835 Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Thu, 13 Feb 2025 09:46:30 +0100
+-Subject: [PATCH 2/2] avformat/movenc: write iTunEXTC and iTunMOVI metadata
++Subject: [PATCH 07/22] avformat/movenc: write iTunEXTC and iTunMOVI metadata
+ 
+ ---
+  libavformat/movenc.c | 45 ++++++++++++++++++++++++++++++++++++++++++++
+  1 file changed, 45 insertions(+)
+ 
+ diff --git a/libavformat/movenc.c b/libavformat/movenc.c
+-index 11df7b0368..c45f15ad77 100644
++index e058b06280..4136a5d623 100644
+ --- a/libavformat/movenc.c
+ +++ b/libavformat/movenc.c
+-@@ -4552,6 +4552,48 @@ static int mov_write_trkn_tag(AVIOContext *pb, MOVMuxContext *mov,
++@@ -4670,6 +4670,48 @@ static int mov_write_trkn_tag(AVIOContext *pb, MOVMuxContext *mov,
+      return size;
+  }
+  
+@@ -60,7 +60,7 @@ index 11df7b0368..c45f15ad77 100644
+  static int mov_write_int8_metadata(AVFormatContext *s, AVIOContext *pb,
+                                     const char *name, const char *tag,
+                                     int len)
+-@@ -4705,6 +4747,9 @@ static int mov_write_ilst_tag(AVIOContext *pb, MOVMuxContext *mov,
++@@ -4823,6 +4865,9 @@ static int mov_write_ilst_tag(AVIOContext *pb, MOVMuxContext *mov,
+      mov_write_trkn_tag(pb, mov, s, 0); // track number
+      mov_write_trkn_tag(pb, mov, s, 1); // disc number
+      mov_write_tmpo_tag(pb, s);
+diff --git a/contrib/ffmpeg/A06-dvdsubdec-fix-processing-of-partial-packets.patch b/contrib/ffmpeg/A08-dvdsubdec-fix-processing-of-partial-packets.patch
+similarity index 73%
+rename from contrib/ffmpeg/A06-dvdsubdec-fix-processing-of-partial-packets.patch
+rename to contrib/ffmpeg/A08-dvdsubdec-fix-processing-of-partial-packets.patch
+index 25e0f2106569..41472275fa37 100644
+--- a/contrib/ffmpeg/A06-dvdsubdec-fix-processing-of-partial-packets.patch
++++ b/contrib/ffmpeg/A08-dvdsubdec-fix-processing-of-partial-packets.patch
+@@ -1,20 +1,20 @@
+-From c402eb2aa3a3913b51e8be96eab963e4f2cb3296 Mon Sep 17 00:00:00 2001
++From 26491abb53d313e01fbcea48a9b3b4ff13a8a150 Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+ Date: Wed, 20 Mar 2024 09:11:09 +0100
+-Subject: [PATCH 06/16] dvdsubdec: fix processing of partial packets
++Subject: [PATCH 08/22] dvdsubdec: fix processing of partial packets
+ 
+ Wait for a complete dvd subtitle before processing.
+ 
+ If the input packet is large enough to start processing, but does not contain complete data, unfinished results are emitted and the following input packet causes an error because the stream is no longer in sync with the decoder.
+ ---
+- libavcodec/dvdsubdec.c | 24 +++++++++++++++++-------
+- 1 file changed, 17 insertions(+), 7 deletions(-)
++ libavcodec/dvdsubdec.c | 23 ++++++++++++++++-------
++ 1 file changed, 16 insertions(+), 7 deletions(-)
+ 
+ diff --git a/libavcodec/dvdsubdec.c b/libavcodec/dvdsubdec.c
+-index f8769353a0..68c1f3af53 100644
++index 78658f7d2f..1207aff88e 100644
+ --- a/libavcodec/dvdsubdec.c
+ +++ b/libavcodec/dvdsubdec.c
+-@@ -230,7 +230,10 @@ static int decode_dvd_subtitles(DVDSubContext *ctx, AVSubtitle *sub_header,
++@@ -230,7 +230,10 @@ static int decode_dvd_subtitles(void *logctx, DVDSubContext *ctx,
+      uint32_t size;
+      int64_t offset1, offset2;
+  
+@@ -26,7 +26,7 @@ index f8769353a0..68c1f3af53 100644
+          return -1;
+  
+      if (AV_RB16(buf) == 0) {   /* HD subpicture with 4-byte offsets */
+-@@ -243,15 +246,22 @@ static int decode_dvd_subtitles(DVDSubContext *ctx, AVSubtitle *sub_header,
++@@ -243,15 +246,21 @@ static int decode_dvd_subtitles(void *logctx, DVDSubContext *ctx,
+          cmd_pos = 2;
+      }
+  
+@@ -35,15 +35,14 @@ index f8769353a0..68c1f3af53 100644
+ +
+      size = READ_OFFSET(buf + (big_offsets ? 2 : 0));
+ -    cmd_pos = READ_OFFSET(buf + cmd_pos);
+++    if (size == 0)
+++        return -1;
+  
+ -    if (cmd_pos < 0 || cmd_pos > buf_size - 2 - offset_size) {
+ -        if (cmd_pos > size) {
+--            av_log(ctx, AV_LOG_ERROR, "Discarding invalid packet\n");
++-            av_log(logctx, AV_LOG_ERROR, "Discarding invalid packet\n");
+ -            return 0;
+ -        }
+-+    if (size == 0)
+-+        return -1;
+-+
+ +    if (buf_size < size)
+          return AVERROR(EAGAIN);
+ +
+diff --git a/contrib/ffmpeg/A07-dvdsubdec-return-number-of-bytes-used.patch b/contrib/ffmpeg/A09-dvdsubdec-return-number-of-bytes-used.patch
+similarity index 72%
+rename from contrib/ffmpeg/A07-dvdsubdec-return-number-of-bytes-used.patch
+rename to contrib/ffmpeg/A09-dvdsubdec-return-number-of-bytes-used.patch
+index 9725c66448e3..53aa2b5dc4f7 100644
+--- a/contrib/ffmpeg/A07-dvdsubdec-return-number-of-bytes-used.patch
++++ b/contrib/ffmpeg/A09-dvdsubdec-return-number-of-bytes-used.patch
+@@ -1,7 +1,7 @@
+-From ce11d719d86ce35afaf342f8302d0ccb0bed83e6 Mon Sep 17 00:00:00 2001
++From 700d8f69087e9e0928a7c860105f60956026cee4 Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+ Date: Wed, 20 Mar 2024 09:11:51 +0100
+-Subject: [PATCH 07/16] dvdsubdec: return number of bytes used
++Subject: [PATCH 09/22] dvdsubdec: return number of bytes used
+ 
+ Documentation says avcodec_decode_subtitle2 returns the number of bytes used.
+ ---
+@@ -9,11 +9,11 @@ Documentation says avcodec_decode_subtitle2 returns the number of bytes used.
+  1 file changed, 5 insertions(+), 1 deletion(-)
+ 
+ diff --git a/libavcodec/dvdsubdec.c b/libavcodec/dvdsubdec.c
+-index 68c1f3af53..025f3dbd6f 100644
++index 1207aff88e..d1aa0f9e30 100644
+ --- a/libavcodec/dvdsubdec.c
+ +++ b/libavcodec/dvdsubdec.c
+-@@ -548,7 +548,11 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
+-     is_menu = decode_dvd_subtitles(ctx, sub, buf, buf_size);
++@@ -547,7 +547,11 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
++     is_menu = decode_dvd_subtitles(avctx, ctx, sub, buf, buf_size);
+      if (is_menu == AVERROR(EAGAIN)) {
+          *data_size = 0;
+ -        return appended ? 0 : append_to_cached_buf(avctx, buf, buf_size);
+diff --git a/contrib/ffmpeg/A08-dvdsubdec-use-pts-of-initial-packet.patch b/contrib/ffmpeg/A10-dvdsubdec-use-pts-of-initial-packet.patch
+similarity index 79%
+rename from contrib/ffmpeg/A08-dvdsubdec-use-pts-of-initial-packet.patch
+rename to contrib/ffmpeg/A10-dvdsubdec-use-pts-of-initial-packet.patch
+index a292b7d5b6e9..09b64cb63305 100644
+--- a/contrib/ffmpeg/A08-dvdsubdec-use-pts-of-initial-packet.patch
++++ b/contrib/ffmpeg/A10-dvdsubdec-use-pts-of-initial-packet.patch
+@@ -1,7 +1,7 @@
+-From dd99c72343c9dd696b44eac3a91a07b2f944e78e Mon Sep 17 00:00:00 2001
++From 2726c0ef6c7c41e3b47de23094f58e226df605a8 Mon Sep 17 00:00:00 2001
+ From: John Stebbins <jstebbins@jetheaddev.com>
+ Date: Wed, 20 Mar 2024 09:12:27 +0100
+-Subject: [PATCH 08/16] dvdsubdec: use pts of initial packet
++Subject: [PATCH 10/22] dvdsubdec: use pts of initial packet
+ 
+ When the source is DVD, only the initial packet of a subtitle that spans multiple packets will have a pts value.
+ ---
+@@ -9,7 +9,7 @@ When the source is DVD, only the initial packet of a subtitle that spans multipl
+  1 file changed, 9 insertions(+)
+ 
+ diff --git a/libavcodec/dvdsubdec.c b/libavcodec/dvdsubdec.c
+-index 025f3dbd6f..afc88656cf 100644
++index d1aa0f9e30..170e01cb17 100644
+ --- a/libavcodec/dvdsubdec.c
+ +++ b/libavcodec/dvdsubdec.c
+ @@ -45,6 +45,7 @@ typedef struct DVDSubContext
+@@ -20,7 +20,7 @@ index 025f3dbd6f..afc88656cf 100644
+  } DVDSubContext;
+  
+  static void yuv_a_to_rgba(const uint8_t *ycbcr, const uint8_t *alpha, uint32_t *rgba, int num_values)
+-@@ -534,10 +535,13 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -533,10 +534,13 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
+      int appended = 0;
+      int is_menu;
+  
+@@ -34,7 +34,7 @@ index 025f3dbd6f..afc88656cf 100644
+              return ret;
+          }
+          buf = ctx->buf;
+-@@ -550,6 +554,7 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -549,6 +553,7 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
+          *data_size = 0;
+          int ret = appended ? 0 : append_to_cached_buf(avctx, buf, buf_size);
+          if (ret < 0) {
+@@ -42,7 +42,7 @@ index 025f3dbd6f..afc88656cf 100644
+              return ret;
+          }
+          return buf_size;
+-@@ -561,6 +566,7 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -560,6 +565,7 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
+          reset_rects(sub);
+          *data_size = 0;
+  
+@@ -50,7 +50,7 @@ index 025f3dbd6f..afc88656cf 100644
+          return buf_size;
+      }
+      if (!is_menu && find_smallest_bounding_rectangle(ctx, sub) == 0)
+-@@ -571,6 +577,8 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -570,6 +576,8 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
+  
+      ctx->buf_size = 0;
+      *data_size = 1;
+@@ -59,7 +59,7 @@ index 025f3dbd6f..afc88656cf 100644
+      return buf_size;
+  }
+  
+-@@ -696,6 +704,7 @@ static av_cold int dvdsub_init(AVCodecContext *avctx)
++@@ -695,6 +703,7 @@ static av_cold int dvdsub_init(AVCodecContext *avctx)
+              av_log(avctx, AV_LOG_DEBUG, " 0x%06"PRIx32, ctx->palette[i]);
+          av_log(avctx, AV_LOG_DEBUG, "\n");
+      }
+diff --git a/contrib/ffmpeg/A09-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch b/contrib/ffmpeg/A11-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch
+similarity index 84%
+rename from contrib/ffmpeg/A09-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch
+rename to contrib/ffmpeg/A11-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch
+index 04739ea678fe..1e58a7dc9259 100644
+--- a/contrib/ffmpeg/A09-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch
++++ b/contrib/ffmpeg/A11-dvdsubdec-add-an-option-to-output-subtitles-with-emp.patch
+@@ -1,7 +1,7 @@
+-From 68545e5d08e3726615f58d533c843edcff80d479 Mon Sep 17 00:00:00 2001
++From 213e22ecf53fe303b482dcfe9fa8c8e1c2c89b19 Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Wed, 20 Mar 2024 09:14:19 +0100
+-Subject: [PATCH 09/16] dvdsubdec: add an option to output subtitles with empty
++Subject: [PATCH 11/22] dvdsubdec: add an option to output subtitles with empty
+  or fully transparent rects.
+ 
+ ---
+@@ -9,7 +9,7 @@ Subject: [PATCH 09/16] dvdsubdec: add an option to output subtitles with empty
+  1 file changed, 3 insertions(+), 1 deletion(-)
+ 
+ diff --git a/libavcodec/dvdsubdec.c b/libavcodec/dvdsubdec.c
+-index afc88656cf..bd32b7dc2b 100644
++index 170e01cb17..83a09d1a17 100644
+ --- a/libavcodec/dvdsubdec.c
+ +++ b/libavcodec/dvdsubdec.c
+ @@ -46,6 +46,7 @@ typedef struct DVDSubContext
+@@ -20,7 +20,7 @@ index afc88656cf..bd32b7dc2b 100644
+  } DVDSubContext;
+  
+  static void yuv_a_to_rgba(const uint8_t *ycbcr, const uint8_t *alpha, uint32_t *rgba, int num_values)
+-@@ -569,7 +570,7 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -568,7 +569,7 @@ static int dvdsub_decode(AVCodecContext *avctx, AVSubtitle *sub,
+          ctx->pts = AV_NOPTS_VALUE;
+          return buf_size;
+      }
+@@ -29,7 +29,7 @@ index afc88656cf..bd32b7dc2b 100644
+          goto no_subtitle;
+  
+      if (ctx->forced_subs_only && !(sub->rects[0]->flags & AV_SUBTITLE_FLAG_FORCED))
+-@@ -721,6 +722,7 @@ static const AVOption options[] = {
++@@ -720,6 +721,7 @@ static const AVOption options[] = {
+      { "palette", "set the global palette", OFFSET(palette_str), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, SD },
+      { "ifo_palette", "obtain the global palette from .IFO file", OFFSET(ifo_str), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, SD },
+      { "forced_subs_only", "Only show forced subtitles", OFFSET(forced_subs_only), AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, SD},
+diff --git a/contrib/ffmpeg/A10-ccaption_dec-fix-pts-in-real_time-mode.patch b/contrib/ffmpeg/A12-ccaption_dec-fix-pts-in-real_time-mode.patch
+similarity index 79%
+rename from contrib/ffmpeg/A10-ccaption_dec-fix-pts-in-real_time-mode.patch
+rename to contrib/ffmpeg/A12-ccaption_dec-fix-pts-in-real_time-mode.patch
+index 47a6881772de..d87cdcf490c1 100644
+--- a/contrib/ffmpeg/A10-ccaption_dec-fix-pts-in-real_time-mode.patch
++++ b/contrib/ffmpeg/A12-ccaption_dec-fix-pts-in-real_time-mode.patch
+@@ -1,7 +1,7 @@
+-From e4b1555ed0c72377c41c66a5198f5c1bf9c321d0 Mon Sep 17 00:00:00 2001
++From e8991642000428af9c898bbcf9950db572040d62 Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Wed, 20 Mar 2024 09:14:43 +0100
+-Subject: [PATCH 10/16] ccaption_dec: fix pts in real_time mode.
++Subject: [PATCH 12/22] ccaption_dec: fix pts in real_time mode.
+ 
+ end_display_time and pts changes should be performed only in non real_time mode.
+ ---
+@@ -9,13 +9,13 @@ end_display_time and pts changes should be performed only in non real_time mode.
+  1 file changed, 5 insertions(+), 4 deletions(-)
+ 
+ diff --git a/libavcodec/ccaption_dec.c b/libavcodec/ccaption_dec.c
+-index d8b992bb94..4a38664875 100644
++index 6f4d4fca41..82be6de51d 100644
+ --- a/libavcodec/ccaption_dec.c
+ +++ b/libavcodec/ccaption_dec.c
+-@@ -889,12 +889,13 @@ static int decode(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -892,12 +892,13 @@ static int decode(AVCodecContext *avctx, AVSubtitle *sub,
+  
+          if (ctx->buffer[bidx].str[0] || ctx->real_time) {
+-             ff_dlog(ctx, "cdp writing data (%s)\n", ctx->buffer[bidx].str);
++             ff_dlog(avctx, "cdp writing data (%s)\n", ctx->buffer[bidx].str);
+ -            start_time = ctx->buffer_time[0];
+ -            sub->pts = start_time;
+ -            end_time = ctx->buffer_time[1];
+diff --git a/contrib/ffmpeg/A11-avformat-matroskaenc-return-error-if-aac-extradata-c.patch b/contrib/ffmpeg/A13-avformat-matroskaenc-return-error-if-aac-extradata-c.patch
+similarity index 85%
+rename from contrib/ffmpeg/A11-avformat-matroskaenc-return-error-if-aac-extradata-c.patch
+rename to contrib/ffmpeg/A13-avformat-matroskaenc-return-error-if-aac-extradata-c.patch
+index 15a500ff68c9..f6d9092898db 100644
+--- a/contrib/ffmpeg/A11-avformat-matroskaenc-return-error-if-aac-extradata-c.patch
++++ b/contrib/ffmpeg/A13-avformat-matroskaenc-return-error-if-aac-extradata-c.patch
+@@ -1,7 +1,7 @@
+-From 62cb5b9b2e023911428566246fde21559fa9c348 Mon Sep 17 00:00:00 2001
++From 44f891701500c285fc28f39bcb94a264f9a80aa9 Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Wed, 20 Mar 2024 09:15:21 +0100
+-Subject: [PATCH 11/16] avformat/matroskaenc: return error if aac extradata
++Subject: [PATCH 13/22] avformat/matroskaenc: return error if aac extradata
+  changes extradata changing would result in an invalid stream. also, as the
+  code was written, rewriting extradata was corrupting the track header
+  resulting in an invalid file.
+@@ -11,10 +11,10 @@ Subject: [PATCH 11/16] avformat/matroskaenc: return error if aac extradata
+  1 file changed, 10 insertions(+)
+ 
+ diff --git a/libavformat/matroskaenc.c b/libavformat/matroskaenc.c
+-index 60c896e964..6672da26ab 100644
++index 8142d9125e..b27fa2c005 100644
+ --- a/libavformat/matroskaenc.c
+ +++ b/libavformat/matroskaenc.c
+-@@ -2933,6 +2933,16 @@ static int mkv_check_new_extra_data(AVFormatContext *s, const AVPacket *pkt)
++@@ -2938,6 +2938,16 @@ static int mkv_check_new_extra_data(AVFormatContext *s, const AVPacket *pkt)
+      case AV_CODEC_ID_AAC:
+          if (side_data_size && mkv->track.bc) {
+              int output_sample_rate = 0;
+diff --git a/contrib/ffmpeg/A13-libswscale-fix-yuv420p-to-p01xle-color-conversion-bu.patch b/contrib/ffmpeg/A13-libswscale-fix-yuv420p-to-p01xle-color-conversion-bu.patch
+deleted file mode 100644
+index dbff85fae9ff..000000000000
+--- a/contrib/ffmpeg/A13-libswscale-fix-yuv420p-to-p01xle-color-conversion-bu.patch
++++ /dev/null
+@@ -1,37 +0,0 @@
+-From 890d42fdfef3d61a5dfcfa731df75c0557ed107b Mon Sep 17 00:00:00 2001
+-From: Vladyslav Sosunovych <vladyslav.sosunovych@intel.com>
+-Date: Wed, 20 Mar 2024 09:17:42 +0100
+-Subject: [PATCH 13/16] libswscale: fix yuv420p to p01xle color conversion bug
+-
+----
+- libswscale/swscale_unscaled.c | 6 +++---
+- 1 file changed, 3 insertions(+), 3 deletions(-)
+-
+-diff --git a/libswscale/swscale_unscaled.c b/libswscale/swscale_unscaled.c
+-index dc1d5f3593..73e7111d1f 100644
+---- a/libswscale/swscale_unscaled.c
+-+++ b/libswscale/swscale_unscaled.c
+-@@ -339,7 +339,7 @@ static int planar8ToP01xleWrapper(SwsContext *c, const uint8_t *src[],
+-         const uint8_t *tsrc0 = src[0];
+-         for (x = c->srcW; x > 0; x--) {
+-             t = *tsrc0++;
+--            output_pixel(tdstY++, t | (t << 8));
+-+            output_pixel(tdstY++, (t << 8));
+-         }
+-         src[0] += srcStride[0];
+-         dstY += dstStride[0] / 2;
+-@@ -350,9 +350,9 @@ static int planar8ToP01xleWrapper(SwsContext *c, const uint8_t *src[],
+-             const uint8_t *tsrc2 = src[2];
+-             for (x = c->srcW / 2; x > 0; x--) {
+-                 t = *tsrc1++;
+--                output_pixel(tdstUV++, t | (t << 8));
+-+                output_pixel(tdstUV++, (t << 8));
+-                 t = *tsrc2++;
+--                output_pixel(tdstUV++, t | (t << 8));
+-+                output_pixel(tdstUV++, (t << 8));
+-             }
+-             src[1] += srcStride[1];
+-             src[2] += srcStride[2];
+--- 
+-2.39.5 (Apple Git-154)
+-
+diff --git a/contrib/ffmpeg/A14-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch b/contrib/ffmpeg/A14-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch
+new file mode 100644
+index 000000000000..ed70d9683895
+--- /dev/null
++++ b/contrib/ffmpeg/A14-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch
+@@ -0,0 +1,108 @@
++From 8deff21ece692e4be4e448553b576487a059a191 Mon Sep 17 00:00:00 2001
++From: Damiano Galassi <damiog@gmail.com>
++Date: Fri, 22 Aug 2025 16:51:18 +0200
++Subject: [PATCH 14/22] Expose the unmodified Dolby Vision RPU T35 buffers
++
++---
++ libavcodec/av1dec.c   | 14 ++++++++++++++
++ libavcodec/libdav1d.c | 14 ++++++++++++++
++ libavutil/frame.h     |  6 ++++++
++ libavutil/side_data.c |  1 +
++ 4 files changed, 35 insertions(+)
++
++diff --git a/libavcodec/av1dec.c b/libavcodec/av1dec.c
++index be595484d1..0f37f70288 100644
++--- a/libavcodec/av1dec.c
+++++ b/libavcodec/av1dec.c
++@@ -1014,6 +1014,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
++         if (ret < 0)
++             return ret;
++     } else if (country_code == ITU_T_T35_COUNTRY_CODE_US && provider_code == ITU_T_T35_PROVIDER_CODE_DOLBY) {
+++        AVBufferRef *rpu_buf;
+++        AVFrameSideData *rpu;
++         int provider_oriented_code = bytestream2_get_be32(&gb);
++         if (provider_oriented_code != 0x800)
++             return 0; // ignore
++@@ -1025,6 +1027,18 @@ FF_ENABLE_DEPRECATION_WARNINGS
++             return 0; // ignore
++         }
++ 
+++        rpu_buf = av_buffer_alloc(itut_t35->payload_size);
+++        if (rpu_buf) {
+++            memcpy(rpu_buf->data, itut_t35->payload, itut_t35->payload_size);
+++            rpu = av_frame_new_side_data_from_buf(frame, AV_FRAME_DATA_DOVI_RPU_BUFFER_T35, rpu_buf);
+++            if (!rpu) {
+++                av_buffer_unref(&rpu_buf);
+++                return AVERROR(ENOMEM);
+++            }
+++        } else {
+++            return AVERROR(ENOMEM);
+++        }
+++
++         ret = ff_dovi_attach_side_data(&s->dovi, frame);
++         if (ret < 0)
++             return ret;
++diff --git a/libavcodec/libdav1d.c b/libavcodec/libdav1d.c
++index a1158a23c4..46f12ade7c 100644
++--- a/libavcodec/libdav1d.c
+++++ b/libavcodec/libdav1d.c
++@@ -440,6 +440,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
++         if (res < 0)
++             return res;
++     } else if (country_code == ITU_T_T35_COUNTRY_CODE_US && provider_code == ITU_T_T35_PROVIDER_CODE_DOLBY) {
+++        AVBufferRef *rpu_buf;
+++        AVFrameSideData *rpu;
++         int provider_oriented_code = bytestream2_get_be32(&gb);
++         if (provider_oriented_code != 0x800)
++             return 0; // ignore
++@@ -451,6 +453,18 @@ FF_ENABLE_DEPRECATION_WARNINGS
++             return 0; // ignore
++         }
++ 
+++        rpu_buf = av_buffer_alloc(itut_t35->payload_size);
+++        if (rpu_buf) {
+++            memcpy(rpu_buf->data, itut_t35->payload, itut_t35->payload_size);
+++            rpu = av_frame_new_side_data_from_buf(frame, AV_FRAME_DATA_DOVI_RPU_BUFFER_T35, rpu_buf);
+++            if (!rpu) {
+++                av_buffer_unref(&rpu_buf);
+++                return AVERROR(ENOMEM);
+++            }
+++        } else {
+++            return AVERROR(ENOMEM);
+++        }
+++
++         res = ff_dovi_attach_side_data(&dav1d->dovi, frame);
++         if (res < 0)
++             return res;
++diff --git a/libavutil/frame.h b/libavutil/frame.h
++index d440cfba2e..19f2946fdf 100644
++--- a/libavutil/frame.h
+++++ b/libavutil/frame.h
++@@ -200,6 +200,12 @@ enum AVFrameSideDataType {
++      */
++     AV_FRAME_DATA_DOVI_RPU_BUFFER,
++ 
+++    /**
+++     * Dolby Vision RPU ITU T35 raw data, suitable for passing to SVT-AV1
+++     * or other libraries. Array of uint8_t.
+++     */
+++    AV_FRAME_DATA_DOVI_RPU_BUFFER_T35,
+++
++     /**
++      * Parsed Dolby Vision metadata, suitable for passing to a software
++      * implementation. The payload is the AVDOVIMetadata struct defined in
++diff --git a/libavutil/side_data.c b/libavutil/side_data.c
++index fa2a2c2a13..c6be82e23c 100644
++--- a/libavutil/side_data.c
+++++ b/libavutil/side_data.c
++@@ -42,6 +42,7 @@ static const AVSideDataDescriptor sd_props[] = {
++     [AV_FRAME_DATA_DETECTION_BBOXES]            = { "Bounding boxes for object detection and classification", AV_SIDE_DATA_PROP_SIZE_DEPENDENT },
++     [AV_FRAME_DATA_DOVI_RPU_BUFFER]             = { "Dolby Vision RPU Data",                        AV_SIDE_DATA_PROP_COLOR_DEPENDENT },
++     [AV_FRAME_DATA_DOVI_METADATA]               = { "Dolby Vision Metadata",                        AV_SIDE_DATA_PROP_COLOR_DEPENDENT },
+++    [AV_FRAME_DATA_DOVI_RPU_BUFFER_T35]         = { "Dolby Vision RPU ITU T35 Data",                AV_SIDE_DATA_PROP_COLOR_DEPENDENT },
++     [AV_FRAME_DATA_LCEVC]                       = { "LCEVC NAL data",                               AV_SIDE_DATA_PROP_SIZE_DEPENDENT },
++     [AV_FRAME_DATA_VIEW_ID]                     = { "View ID" },
++     [AV_FRAME_DATA_STEREO3D]                    = { "Stereo 3D",                                    AV_SIDE_DATA_PROP_GLOBAL },
++-- 
++2.39.5 (Apple Git-154)
++
+diff --git a/contrib/ffmpeg/A14-hevc_mp4toannexb.c-fix-qsv-decode-of-10bit-hdr.patch b/contrib/ffmpeg/A14-hevc_mp4toannexb.c-fix-qsv-decode-of-10bit-hdr.patch
+deleted file mode 100644
+index 3f17b662f7bc..000000000000
+--- a/contrib/ffmpeg/A14-hevc_mp4toannexb.c-fix-qsv-decode-of-10bit-hdr.patch
++++ /dev/null
+@@ -1,40 +0,0 @@
+-From a6e754b2ace03fbced335184539970212039c745 Mon Sep 17 00:00:00 2001
+-From: galinart <artem.galin@intel.com>
+-Date: Wed, 20 Mar 2024 09:22:21 +0100
+-Subject: [PATCH 14/16] hevc_mp4toannexb.c: fix qsv decode of 10bit hdr.
+-
+----
+- libavcodec/bsf/hevc_mp4toannexb.c | 6 +++++-
+- 1 file changed, 5 insertions(+), 1 deletion(-)
+-
+-diff --git a/libavcodec/bsf/hevc_mp4toannexb.c b/libavcodec/bsf/hevc_mp4toannexb.c
+-index f281185769..241fa07a0f 100644
+---- a/libavcodec/bsf/hevc_mp4toannexb.c
+-+++ b/libavcodec/bsf/hevc_mp4toannexb.c
+-@@ -125,6 +125,7 @@ static int hevc_mp4toannexb_filter(AVBSFContext *ctx, AVPacket *out)
+-     AVPacket *in;
+-     GetByteContext gb;
+- 
+-+    int has_sps = 0, has_pps = 0;
+-     int got_irap = 0;
+-     int i, ret = 0;
+- 
+-@@ -158,11 +159,14 @@ static int hevc_mp4toannexb_filter(AVBSFContext *ctx, AVPacket *out)
+-         }
+- 
+-         nalu_type = (bytestream2_peek_byte(&gb) >> 1) & 0x3f;
+-+        has_sps = (has_sps || nalu_type == HEVC_NAL_SPS);
+-+        has_pps = (has_pps || nalu_type == HEVC_NAL_PPS);
+- 
+-         /* prepend extradata to IRAP frames */
+-         is_irap = nalu_type >= HEVC_NAL_BLA_W_LP &&
+-                   nalu_type <= HEVC_NAL_RSV_IRAP_VCL23;
+--        add_extradata = is_irap && !got_irap;
+-+        /* ignore the extradata if IRAP frame has sps and pps */
+-+        add_extradata = is_irap && !got_irap && !(has_sps && has_pps);
+-         extra_size    = add_extradata * ctx->par_out->extradata_size;
+-         got_irap     |= is_irap;
+- 
+--- 
+-2.39.5 (Apple Git-154)
+-
+diff --git a/contrib/ffmpeg/A15-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch b/contrib/ffmpeg/A15-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch
+deleted file mode 100644
+index d9c40bee62ac..000000000000
+--- a/contrib/ffmpeg/A15-Expose-the-unmodified-Dolby-Vision-RPU-T35-buffers.patch
++++ /dev/null
+@@ -1,108 +0,0 @@
+-From 0f4a6a95ae5b73e4dc51f9ca3f94785fe5056bfc Mon Sep 17 00:00:00 2001
+-From: Damiano Galassi <damiog@gmail.com>
+-Date: Mon, 30 Sep 2024 13:41:29 +0200
+-Subject: [PATCH 15/16] Expose the unmodified Dolby Vision RPU T35 buffers
+-
+----
+- libavcodec/av1dec.c   | 14 ++++++++++++++
+- libavcodec/libdav1d.c | 14 ++++++++++++++
+- libavutil/frame.c     |  1 +
+- libavutil/frame.h     |  6 ++++++
+- 4 files changed, 35 insertions(+)
+-
+-diff --git a/libavcodec/av1dec.c b/libavcodec/av1dec.c
+-index 1d5b9ef4f4..f0d22af314 100644
+---- a/libavcodec/av1dec.c
+-+++ b/libavcodec/av1dec.c
+-@@ -1002,6 +1002,8 @@ static int export_itut_t35(AVCodecContext *avctx, AVFrame *frame,
+-         break;
+-     }
+-     case ITU_T_T35_PROVIDER_CODE_DOLBY: {
+-+        AVBufferRef *rpu_buf;
+-+        AVFrameSideData *rpu;
+-         int provider_oriented_code = bytestream2_get_be32(&gb);
+-         if (itut_t35->itu_t_t35_country_code != ITU_T_T35_COUNTRY_CODE_US ||
+-             provider_oriented_code != 0x800)
+-@@ -1014,6 +1016,18 @@ static int export_itut_t35(AVCodecContext *avctx, AVFrame *frame,
+-             break; // ignore
+-         }
+- 
+-+        rpu_buf = av_buffer_alloc(itut_t35->payload_size);
+-+        if (rpu_buf) {
+-+            memcpy(rpu_buf->data, itut_t35->payload, itut_t35->payload_size);
+-+            rpu = av_frame_new_side_data_from_buf(frame, AV_FRAME_DATA_DOVI_RPU_BUFFER_T35, rpu_buf);
+-+            if (!rpu) {
+-+                av_buffer_unref(&rpu_buf);
+-+                return AVERROR(ENOMEM);
+-+            }
+-+        } else {
+-+            return AVERROR(ENOMEM);
+-+        }
+-+
+-         ret = ff_dovi_attach_side_data(&s->dovi, frame);
+-         if (ret < 0)
+-             return ret;
+-diff --git a/libavcodec/libdav1d.c b/libavcodec/libdav1d.c
+-index 546b42e9c6..04d0ca4b90 100644
+---- a/libavcodec/libdav1d.c
+-+++ b/libavcodec/libdav1d.c
+-@@ -562,6 +562,8 @@ static int libdav1d_receive_frame(AVCodecContext *c, AVFrame *frame)
+-             break;
+-         }
+-         case ITU_T_T35_PROVIDER_CODE_DOLBY: {
+-+            AVBufferRef *rpu_buf;
+-+            AVFrameSideData *rpu;
+-             int provider_oriented_code = bytestream2_get_be32(&gb);
+-             if (itut_t35->country_code != ITU_T_T35_COUNTRY_CODE_US ||
+-                 provider_oriented_code != 0x800)
+-@@ -574,6 +576,18 @@ static int libdav1d_receive_frame(AVCodecContext *c, AVFrame *frame)
+-                 break; // ignore
+-             }
+- 
+-+            rpu_buf = av_buffer_alloc(itut_t35->payload_size);
+-+            if (rpu_buf) {
+-+                memcpy(rpu_buf->data, itut_t35->payload, itut_t35->payload_size);
+-+                rpu = av_frame_new_side_data_from_buf(frame, AV_FRAME_DATA_DOVI_RPU_BUFFER_T35, rpu_buf);
+-+                if (!rpu) {
+-+                    av_buffer_unref(&rpu_buf);
+-+                    goto fail;
+-+                }
+-+            } else {
+-+                goto fail;
+-+            }
+-+
+-             res = ff_dovi_attach_side_data(&dav1d->dovi, frame);
+-             if (res < 0)
+-                 goto fail;
+-diff --git a/libavutil/frame.c b/libavutil/frame.c
+-index f0a0dba018..ab48eaab2b 100644
+---- a/libavutil/frame.c
+-+++ b/libavutil/frame.c
+-@@ -45,6 +45,7 @@ static const AVSideDataDescriptor sd_props[] = {
+-     [AV_FRAME_DATA_FILM_GRAIN_PARAMS]           = { "Film grain parameters" },
+-     [AV_FRAME_DATA_DETECTION_BBOXES]            = { "Bounding boxes for object detection and classification" },
+-     [AV_FRAME_DATA_DOVI_RPU_BUFFER]             = { "Dolby Vision RPU Data" },
+-+    [AV_FRAME_DATA_DOVI_RPU_BUFFER_T35]         = { "Dolby Vision RPU ITU T35 Data" },
+-     [AV_FRAME_DATA_DOVI_METADATA]               = { "Dolby Vision Metadata" },
+-     [AV_FRAME_DATA_LCEVC]                       = { "LCEVC NAL data" },
+-     [AV_FRAME_DATA_VIEW_ID]                     = { "View ID" },
+-diff --git a/libavutil/frame.h b/libavutil/frame.h
+-index f7806566d5..8f2bbfdf6f 100644
+---- a/libavutil/frame.h
+-+++ b/libavutil/frame.h
+-@@ -200,6 +200,12 @@ enum AVFrameSideDataType {
+-      */
+-     AV_FRAME_DATA_DOVI_RPU_BUFFER,
+- 
+-+    /**
+-+     * Dolby Vision RPU ITU T35 raw data, suitable for passing to SVT-AV1
+-+     * or other libraries. Array of uint8_t.
+-+     */
+-+    AV_FRAME_DATA_DOVI_RPU_BUFFER_T35,
+-+
+-     /**
+-      * Parsed Dolby Vision metadata, suitable for passing to a software
+-      * implementation. The payload is the AVDOVIMetadata struct defined in
+--- 
+-2.39.5 (Apple Git-154)
+-
+diff --git a/contrib/ffmpeg/A21-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch b/contrib/ffmpeg/A15-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch
+similarity index 96%
+rename from contrib/ffmpeg/A21-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch
+rename to contrib/ffmpeg/A15-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch
+index 94d7fead9397..11bc6afc6c57 100644
+--- a/contrib/ffmpeg/A21-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch
++++ b/contrib/ffmpeg/A15-lavc-pgssubdec-Add-graphic-plane-and-cropping.patch
+@@ -1,17 +1,17 @@
+-From 2a2fdb2c75d74e37840597cf88578d43ab2f5f70 Mon Sep 17 00:00:00 2001
++From 8101bc348c327f0a546a35e15914c9521ce0125f Mon Sep 17 00:00:00 2001
+ From: cubicibo <55701024+cubicibo@users.noreply.github.com>
+ Date: Thu, 22 Aug 2024 22:57:54 +0200
+-Subject: [PATCH] lavc/pgssubdec: Add graphic plane and cropping.
++Subject: [PATCH 15/22] lavc/pgssubdec: Add graphic plane and cropping.
+ 
+ ---
+  libavcodec/pgssubdec.c | 554 ++++++++++++++++++++++++++---------------
+  1 file changed, 353 insertions(+), 201 deletions(-)
+ 
+ diff --git a/libavcodec/pgssubdec.c b/libavcodec/pgssubdec.c
+-index 5f76f12615..973a264105 100644
++index 20583c9afa..b43ce23df9 100644
+ --- a/libavcodec/pgssubdec.c
+ +++ b/libavcodec/pgssubdec.c
+-@@ -34,9 +34,11 @@
++@@ -35,9 +35,11 @@
+  #include "libavutil/opt.h"
+  
+  #define RGBA(r,g,b,a) (((unsigned)(a) << 24) | ((r) << 16) | ((g) << 8) | (b))
+@@ -26,7 +26,7 @@ index 5f76f12615..973a264105 100644
+  
+  enum SegmentType {
+      PALETTE_SEGMENT      = 0x14,
+-@@ -47,57 +49,80 @@ enum SegmentType {
++@@ -48,57 +50,80 @@ enum SegmentType {
+  };
+  
+  typedef struct PGSSubObjectRef {
+@@ -130,7 +130,7 @@ index 5f76f12615..973a264105 100644
+  static void flush_cache(AVCodecContext *avctx)
+  {
+      PGSSubContext *ctx = avctx->priv_data;
+-@@ -105,8 +130,11 @@ static void flush_cache(AVCodecContext *avctx)
++@@ -106,8 +131,11 @@ static void flush_cache(AVCodecContext *avctx)
+  
+      for (i = 0; i < ctx->objects.count; i++) {
+          av_freep(&ctx->objects.object[i].rle);
+@@ -143,7 +143,7 @@ index 5f76f12615..973a264105 100644
+      }
+      ctx->objects.count = 0;
+      ctx->palettes.count = 0;
+-@@ -143,6 +171,7 @@ static av_cold int init_decoder(AVCodecContext *avctx)
++@@ -144,6 +172,7 @@ static av_cold int init_decoder(AVCodecContext *avctx)
+  
+  static av_cold int close_decoder(AVCodecContext *avctx)
+  {
+@@ -151,7 +151,7 @@ index 5f76f12615..973a264105 100644
+      flush_cache(avctx);
+  
+      return 0;
+-@@ -158,48 +187,51 @@ static av_cold int close_decoder(AVCodecContext *avctx)
++@@ -159,48 +188,51 @@ static av_cold int close_decoder(AVCodecContext *avctx)
+   * @param buf pointer to the RLE data to process
+   * @param buf_size size of the RLE data to process
+   */
+@@ -220,7 +220,7 @@ index 5f76f12615..973a264105 100644
+                  if (avctx->err_recognition & AV_EF_EXPLODE) {
+                      return AVERROR_INVALIDDATA;
+                  }
+-@@ -208,13 +240,11 @@ static int decode_rle(AVCodecContext *avctx, AVSubtitleRect *rect,
++@@ -209,13 +241,11 @@ static int decode_rle(AVCodecContext *avctx, AVSubtitleRect *rect,
+          }
+      }
+  
+@@ -237,7 +237,7 @@ index 5f76f12615..973a264105 100644
+      return 0;
+  }
+  
+-@@ -236,7 +266,7 @@ static int parse_object_segment(AVCodecContext *avctx,
++@@ -237,7 +267,7 @@ static int parse_object_segment(AVCodecContext *avctx,
+  
+      uint8_t sequence_desc;
+      unsigned int rle_bitmap_len, width, height;
+@@ -246,7 +246,7 @@ index 5f76f12615..973a264105 100644
+  
+      if (buf_size <= 4)
+          return AVERROR_INVALIDDATA;
+-@@ -259,57 +289,71 @@ static int parse_object_segment(AVCodecContext *avctx,
++@@ -260,57 +290,71 @@ static int parse_object_segment(AVCodecContext *avctx,
+      /* Read the Sequence Description to determine if start of RLE data or appended to previous RLE */
+      sequence_desc = bytestream_get_byte(&buf);
+  
+@@ -359,7 +359,7 @@ index 5f76f12615..973a264105 100644
+      return 0;
+  }
+  
+-@@ -317,7 +361,7 @@ static int parse_object_segment(AVCodecContext *avctx,
++@@ -318,7 +362,7 @@ static int parse_object_segment(AVCodecContext *avctx,
+   * Parse the palette segment packet.
+   *
+   * The palette segment contains details of the palette,
+@@ -368,7 +368,7 @@ index 5f76f12615..973a264105 100644
+   *
+   * @param avctx contains the current codec context
+   * @param buf pointer to the packet to process
+-@@ -390,13 +434,17 @@ static int parse_presentation_segment(AVCodecContext *avctx,
++@@ -391,13 +435,17 @@ static int parse_presentation_segment(AVCodecContext *avctx,
+                                        int64_t pts)
+  {
+      PGSSubContext *ctx = avctx->priv_data;
+@@ -387,7 +387,7 @@ index 5f76f12615..973a264105 100644
+      ctx->presentation.pts = pts;
+  
+      ff_dlog(avctx, "Video Dimensions %dx%d\n",
+-@@ -405,88 +453,121 @@ static int parse_presentation_segment(AVCodecContext *avctx,
++@@ -406,88 +454,121 @@ static int parse_presentation_segment(AVCodecContext *avctx,
+      if (ret < 0)
+          return ret;
+  
+@@ -458,13 +458,13 @@ index 5f76f12615..973a264105 100644
+ -    {
+ -        PGSSubObjectRef *const object = &ctx->presentation.objects[i];
+ +            if (buf_end - buf < 8) {
+-+                av_log(avctx, AV_LOG_ERROR, "Insufficent space for object\n");
+++                av_log(avctx, AV_LOG_ERROR, "Insufficient space for object\n");
+ +                ctx->presentation.object_count = i;
+ +                return AVERROR_INVALIDDATA;
+ +            }
+  
+ -        if (buf_end - buf < 8) {
+--            av_log(avctx, AV_LOG_ERROR, "Insufficent space for object\n");
++-            av_log(avctx, AV_LOG_ERROR, "Insufficient space for object\n");
+ -            ctx->presentation.object_count = i;
+ -            return AVERROR_INVALIDDATA;
+ -        }
+@@ -558,7 +558,7 @@ index 5f76f12615..973a264105 100644
+   *
+   * @param avctx contains the current codec context
+   * @param data pointer to the data pertaining the subtitle to display
+-@@ -499,26 +580,33 @@ static int display_end_segment(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -500,26 +581,33 @@ static int display_end_segment(AVCodecContext *avctx, AVSubtitle *sub,
+      PGSSubContext *ctx = avctx->priv_data;
+      int64_t pts;
+      PGSSubPalette *palette;
+@@ -600,7 +600,7 @@ index 5f76f12615..973a264105 100644
+      palette = find_palette(ctx->presentation.palette_id, &ctx->palettes);
+      if (!palette) {
+          // Missing palette.  Should only happen with damaged streams.
+-@@ -527,57 +615,128 @@ static int display_end_segment(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -528,57 +616,128 @@ static int display_end_segment(AVCodecContext *avctx, AVSubtitle *sub,
+          avsubtitle_free(sub);
+          return AVERROR_INVALIDDATA;
+      }
+@@ -772,7 +772,7 @@ index 5f76f12615..973a264105 100644
+          rect->data[1]   = av_mallocz(AVPALETTE_SIZE);
+          if (!rect->data[1])
+              return AVERROR(ENOMEM);
+-@@ -640,14 +799,7 @@ static int decode(AVCodecContext *avctx, AVSubtitle *sub,
++@@ -641,14 +800,7 @@ static int decode(AVCodecContext *avctx, AVSubtitle *sub,
+              ret = parse_presentation_segment(avctx, buf, segment_length, sub->pts);
+              break;
+          case WINDOW_SEGMENT:
+@@ -789,5 +789,5 @@ index 5f76f12615..973a264105 100644
+          case DISPLAY_SEGMENT:
+              if (*got_sub_ptr) {
+ -- 
+-2.32.0 (Apple Git-132)
++2.39.5 (Apple Git-154)
+ 
+diff --git a/contrib/ffmpeg/A16-avcodec-amfenc-Add-support-for-on-demand-key-frames.patch b/contrib/ffmpeg/A16-avcodec-amfenc-Add-support-for-on-demand-key-frames.patch
+deleted file mode 100644
+index 2ffbc07b2073..000000000000
+--- a/contrib/ffmpeg/A16-avcodec-amfenc-Add-support-for-on-demand-key-frames.patch
++++ /dev/null
+@@ -1,120 +0,0 @@
+-From d44504cc55d5a67c9c42941d7c65b963472957a9 Mon Sep 17 00:00:00 2001
+-From: Cameron Gutman <aicommander@gmail.com>
+-Date: Mon, 23 Sep 2024 11:14:13 +0200
+-Subject: [PATCH 16/16] avcodec/amfenc: Add support for on-demand key frames
+-
+----
+- libavcodec/amfenc.c      | 41 +++++++++++++++++++++++++++++++++++++++-
+- libavcodec/amfenc.h      |  1 +
+- libavcodec/amfenc_av1.c  |  1 +
+- libavcodec/amfenc_h264.c |  1 +
+- libavcodec/amfenc_hevc.c |  1 +
+- 5 files changed, 44 insertions(+), 1 deletion(-)
+-
+-diff --git a/libavcodec/amfenc.c b/libavcodec/amfenc.c
+-index a47aea6108..225fb9df27 100644
+---- a/libavcodec/amfenc.c
+-+++ b/libavcodec/amfenc.c
+-@@ -766,11 +766,50 @@ int ff_amf_receive_packet(AVCodecContext *avctx, AVPacket *avpkt)
+-         switch (avctx->codec->id) {
+-         case AV_CODEC_ID_H264:
+-             AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_INSERT_AUD, !!ctx->aud);
+-+            switch (frame->pict_type) {
+-+            case AV_PICTURE_TYPE_I:
+-+                if (ctx->forced_idr) {
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_INSERT_SPS, 1);
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_INSERT_PPS, 1);
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_FORCE_PICTURE_TYPE, AMF_VIDEO_ENCODER_PICTURE_TYPE_IDR);
+-+                } else {
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_FORCE_PICTURE_TYPE, AMF_VIDEO_ENCODER_PICTURE_TYPE_I);
+-+                }
+-+                break;
+-+            case AV_PICTURE_TYPE_P:
+-+                AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_FORCE_PICTURE_TYPE, AMF_VIDEO_ENCODER_PICTURE_TYPE_P);
+-+                break;
+-+            case AV_PICTURE_TYPE_B:
+-+                AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_FORCE_PICTURE_TYPE, AMF_VIDEO_ENCODER_PICTURE_TYPE_B);
+-+                break;
+-+            }
+-             break;
+-         case AV_CODEC_ID_HEVC:
+-             AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_HEVC_INSERT_AUD, !!ctx->aud);
+-+            switch (frame->pict_type) {
+-+            case AV_PICTURE_TYPE_I:
+-+                if (ctx->forced_idr) {
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_HEVC_INSERT_HEADER, 1);
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_HEVC_FORCE_PICTURE_TYPE, AMF_VIDEO_ENCODER_HEVC_PICTURE_TYPE_IDR);
+-+                } else {
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_HEVC_FORCE_PICTURE_TYPE, AMF_VIDEO_ENCODER_HEVC_PICTURE_TYPE_I);
+-+                }
+-+                break;
+-+            case AV_PICTURE_TYPE_P:
+-+                AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_HEVC_FORCE_PICTURE_TYPE, AMF_VIDEO_ENCODER_HEVC_PICTURE_TYPE_P);
+-+                break;
+-+            }
+-+            break;
+-+        case AV_CODEC_ID_AV1:
+-+            if (frame->pict_type == AV_PICTURE_TYPE_I) {
+-+                if (ctx->forced_idr) {
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_AV1_FORCE_INSERT_SEQUENCE_HEADER, 1);
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_AV1_FORCE_FRAME_TYPE, AMF_VIDEO_ENCODER_AV1_FORCE_FRAME_TYPE_KEY);
+-+                } else {
+-+                    AMF_ASSIGN_PROPERTY_INT64(res, surface, AMF_VIDEO_ENCODER_AV1_FORCE_FRAME_TYPE, AMF_VIDEO_ENCODER_AV1_FORCE_FRAME_TYPE_INTRA_ONLY);
+-+                }
+-+            }
+-             break;
+--        //case AV_CODEC_ID_AV1 not supported
+-         default:
+-             break;
+-         }
+-diff --git a/libavcodec/amfenc.h b/libavcodec/amfenc.h
+-index d985d01bb1..0f2abcbd82 100644
+---- a/libavcodec/amfenc.h
+-+++ b/libavcodec/amfenc.h
+-@@ -114,6 +114,7 @@ typedef struct AmfContext {
+-     int                 max_b_frames;
+-     int                 qvbr_quality_level;
+-     int                 hw_high_motion_quality_boost;
+-+    int                 forced_idr;
+- 
+-     // HEVC - specific options
+- 
+-diff --git a/libavcodec/amfenc_av1.c b/libavcodec/amfenc_av1.c
+-index 2a7a782063..b40d54f70c 100644
+---- a/libavcodec/amfenc_av1.c
+-+++ b/libavcodec/amfenc_av1.c
+-@@ -116,6 +116,7 @@ static const AVOption options[] = {
+-     { "none",                   "no adaptive quantization",         0, AV_OPT_TYPE_CONST, {.i64 = AMF_VIDEO_ENCODER_AV1_AQ_MODE_NONE }, 0, 0, VE, .unit = "adaptive_quantisation_mode" },
+-     { "caq",                    "context adaptive quantization",    0, AV_OPT_TYPE_CONST, {.i64 = AMF_VIDEO_ENCODER_AV1_AQ_MODE_CAQ }, 0, 0, VE, .unit = "adaptive_quantisation_mode" },
+- 
+-+    { "forced_idr",             "Force I frames to be IDR frames",  OFFSET(forced_idr),   AV_OPT_TYPE_BOOL, { .i64 = 0 }, 0, 1, VE },
+- 
+-     { "align",                  "alignment mode",                           OFFSET(align),                          AV_OPT_TYPE_INT,     {.i64 = AMF_VIDEO_ENCODER_AV1_ALIGNMENT_MODE_NO_RESTRICTIONS },         AMF_VIDEO_ENCODER_AV1_ALIGNMENT_MODE_64X16_ONLY, AMF_VIDEO_ENCODER_AV1_ALIGNMENT_MODE_NO_RESTRICTIONS, VE, .unit = "align" },
+-     { "64x16",                  "", 0, AV_OPT_TYPE_CONST, {.i64 = AMF_VIDEO_ENCODER_AV1_ALIGNMENT_MODE_64X16_ONLY               }, 0, 0, VE, .unit = "align" },
+-diff --git a/libavcodec/amfenc_h264.c b/libavcodec/amfenc_h264.c
+-index 8edd39c633..959be9eab6 100644
+---- a/libavcodec/amfenc_h264.c
+-+++ b/libavcodec/amfenc_h264.c
+-@@ -133,6 +133,7 @@ static const AVOption options[] = {
+-     { "me_half_pel",    "Enable ME Half Pixel",                 OFFSET(me_half_pel),   AV_OPT_TYPE_BOOL,  { .i64 = -1 }, -1, 1, VE },
+-     { "me_quarter_pel", "Enable ME Quarter Pixel",              OFFSET(me_quarter_pel),AV_OPT_TYPE_BOOL,  { .i64 = -1 }, -1, 1, VE },
+- 
+-+    { "forced_idr",     "Force I frames to be IDR frames",      OFFSET(forced_idr)   , AV_OPT_TYPE_BOOL,  { .i64 = 0  }, 0, 1, VE },
+-     { "aud",            "Inserts AU Delimiter NAL unit",        OFFSET(aud)          , AV_OPT_TYPE_BOOL,  { .i64 = -1 }, -1, 1, VE },
+- 
+- 
+-diff --git a/libavcodec/amfenc_hevc.c b/libavcodec/amfenc_hevc.c
+-index 4898824f3a..fc25dcec1a 100644
+---- a/libavcodec/amfenc_hevc.c
+-+++ b/libavcodec/amfenc_hevc.c
+-@@ -100,6 +100,7 @@ static const AVOption options[] = {
+-     { "me_half_pel",    "Enable ME Half Pixel",                     OFFSET(me_half_pel),   AV_OPT_TYPE_BOOL,{ .i64 = -1 },  -1, 1, VE },
+-     { "me_quarter_pel", "Enable ME Quarter Pixel ",                 OFFSET(me_quarter_pel),AV_OPT_TYPE_BOOL,{ .i64 = -1 },  -1, 1, VE },
+- 
+-+    { "forced_idr",     "Force I frames to be IDR frames",          OFFSET(forced_idr)    ,AV_OPT_TYPE_BOOL,{ .i64 = 0  }, 0, 1, VE },
+-     { "aud",            "Inserts AU Delimiter NAL unit",            OFFSET(aud)           ,AV_OPT_TYPE_BOOL,{ .i64 = -1 }, -1, 1, VE },
+- 
+- 
+--- 
+-2.39.5 (Apple Git-154)
+-
+diff --git a/contrib/ffmpeg/A18-libavcodec-qsvenc-update-has_b_frames-value.patch b/contrib/ffmpeg/A16-libavcodec-qsvenc.c-update-has_b_frames-value-after-.patch
+similarity index 77%
+rename from contrib/ffmpeg/A18-libavcodec-qsvenc-update-has_b_frames-value.patch
+rename to contrib/ffmpeg/A16-libavcodec-qsvenc.c-update-has_b_frames-value-after-.patch
+index 42c7ad4e7fca..dc85a74abb6e 100644
+--- a/contrib/ffmpeg/A18-libavcodec-qsvenc-update-has_b_frames-value.patch
++++ b/contrib/ffmpeg/A16-libavcodec-qsvenc.c-update-has_b_frames-value-after-.patch
+@@ -1,7 +1,7 @@
+-From 95676fcc5c7141124a10bab0498110aed88680ce Mon Sep 17 00:00:00 2001
++From 82a75013402293f86fca38a8ffc1b3c7fe6d8b0e Mon Sep 17 00:00:00 2001
+ From: galinart <artem.galin@intel.com>
+ Date: Thu, 17 Oct 2024 16:17:36 +0100
+-Subject: [PATCH] libavcodec/qsvenc.c: update has_b_frames value after
++Subject: [PATCH 16/22] libavcodec/qsvenc.c: update has_b_frames value after
+  initialization of encoder
+ 
+ ---
+@@ -9,7 +9,7 @@ Subject: [PATCH] libavcodec/qsvenc.c: update has_b_frames value after
+  1 file changed, 7 insertions(+)
+ 
+ diff --git a/libavcodec/qsvenc.c b/libavcodec/qsvenc.c
+-index 8200a14..c2bb5e5 100644
++index 318a99e2a1..039a108aae 100644
+ --- a/libavcodec/qsvenc.c
+ +++ b/libavcodec/qsvenc.c
+ @@ -1842,6 +1842,13 @@ int ff_qsv_enc_init(AVCodecContext *avctx, QSVEncContext *q)
+@@ -27,5 +27,5 @@ index 8200a14..c2bb5e5 100644
+  
+      return 0;
+ -- 
+-2.25.1
++2.39.5 (Apple Git-154)
+ 
+diff --git a/contrib/ffmpeg/A17-avcodec-amfenc-properly-set-primaries-transfer-and-m.patch b/contrib/ffmpeg/A17-avcodec-amfenc-properly-set-primaries-transfer-and-m.patch
+deleted file mode 100644
+index 3ddcbea3527c..000000000000
+--- a/contrib/ffmpeg/A17-avcodec-amfenc-properly-set-primaries-transfer-and-m.patch
++++ /dev/null
+@@ -1,271 +0,0 @@
+-From cb67a100fcdecd97d0bd78a31c4c17c60682c2e0 Mon Sep 17 00:00:00 2001
+-From: Damiano Galassi <damiog@gmail.com>
+-Date: Sat, 19 Oct 2024 14:31:13 +0200
+-Subject: [PATCH] avcodec/amfenc: properly set primaries, transfer, and matrix
+- values
+-
+-HEVC and AV1 encoders had hard-coded color values for 8-bit and 10-bit depths,
+-and they were completely disregarding the provided values.
+----
+- libavcodec/amfenc.c      | 109 +++++++++++++++++++++++++++++++++++++++
+- libavcodec/amfenc.h      |   2 +
+- libavcodec/amfenc_av1.c  |  16 +++---
+- libavcodec/amfenc_h264.c |  10 ++--
+- libavcodec/amfenc_hevc.c |  15 +++---
+- 5 files changed, 129 insertions(+), 23 deletions(-)
+-
+-diff --git a/libavcodec/amfenc.c b/libavcodec/amfenc.c
+-index 225fb9df27..a83f5b2013 100644
+---- a/libavcodec/amfenc.c
+-+++ b/libavcodec/amfenc.c
+-@@ -917,6 +917,115 @@ int ff_amf_receive_packet(AVCodecContext *avctx, AVPacket *avpkt)
+-     return ret;
+- }
+- 
+-+int ff_amf_get_color_primaries(AVCodecContext *avctx)
+-+{
+-+    amf_int64 color_primaries = AMF_COLOR_PRIMARIES_UNDEFINED;
+-+    switch (avctx->color_primaries) {
+-+        case AVCOL_PRI_BT709:
+-+            color_primaries = AMF_COLOR_PRIMARIES_BT709;
+-+            break;
+-+        case AVCOL_PRI_UNSPECIFIED:
+-+            color_primaries = AMF_COLOR_PRIMARIES_UNSPECIFIED;
+-+            break;
+-+        case AVCOL_PRI_RESERVED:
+-+            color_primaries = AMF_COLOR_PRIMARIES_RESERVED;
+-+            break;
+-+        case AVCOL_PRI_BT470M:
+-+            color_primaries = AMF_COLOR_PRIMARIES_BT470M;
+-+            break;
+-+        case AVCOL_PRI_BT470BG:
+-+            color_primaries = AMF_COLOR_PRIMARIES_BT470BG;
+-+            break;
+-+        case AVCOL_PRI_SMPTE170M:
+-+            color_primaries = AMF_COLOR_PRIMARIES_SMPTE170M;
+-+            break;
+-+        case AVCOL_PRI_SMPTE240M:
+-+            color_primaries = AMF_COLOR_PRIMARIES_SMPTE240M;
+-+            break;
+-+        case AVCOL_PRI_FILM:
+-+            color_primaries = AMF_COLOR_PRIMARIES_FILM;
+-+            break;
+-+        case AVCOL_PRI_BT2020:
+-+            color_primaries = AMF_COLOR_PRIMARIES_BT2020;
+-+            break;
+-+        case AVCOL_PRI_SMPTE428:
+-+            color_primaries = AMF_COLOR_PRIMARIES_SMPTE428;
+-+            break;
+-+        case AVCOL_PRI_SMPTE431:
+-+            color_primaries = AMF_COLOR_PRIMARIES_SMPTE431;
+-+            break;
+-+        case AVCOL_PRI_SMPTE432:
+-+            color_primaries = AMF_COLOR_PRIMARIES_SMPTE432;
+-+            break;
+-+        case AVCOL_PRI_EBU3213:
+-+            color_primaries = AMF_COLOR_PRIMARIES_JEDEC_P22;
+-+            break;
+-+    }
+-+    return color_primaries;
+-+}
+-+
+-+int ff_amf_get_transfer_characteristic(AVCodecContext *avctx)
+-+{
+-+    amf_int64 transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_UNDEFINED;
+-+    switch (avctx->color_trc) {
+-+        case AVCOL_TRC_BT709:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_BT709;
+-+            break;
+-+        case AVCOL_TRC_UNSPECIFIED:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_UNSPECIFIED;
+-+            break;
+-+        case AVCOL_TRC_RESERVED:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_RESERVED;
+-+            break;
+-+        case AVCOL_TRC_GAMMA22:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_GAMMA22;
+-+            break;
+-+        case AVCOL_TRC_GAMMA28:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_GAMMA28;
+-+            break;
+-+        case AVCOL_TRC_SMPTE170M:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_SMPTE170M;
+-+            break;
+-+        case AVCOL_TRC_SMPTE240M:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_SMPTE240M;
+-+            break;
+-+        case AVCOL_TRC_LINEAR:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_LINEAR;
+-+            break;
+-+        case AVCOL_TRC_LOG:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_LOG;
+-+            break;
+-+        case AVCOL_TRC_LOG_SQRT:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_LOG_SQRT;
+-+            break;
+-+        case AVCOL_TRC_IEC61966_2_4:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_IEC61966_2_4;
+-+            break;
+-+        case AVCOL_TRC_BT1361_ECG:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_BT1361_ECG;
+-+            break;
+-+        case AVCOL_TRC_IEC61966_2_1:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_IEC61966_2_1;
+-+            break;
+-+        case AVCOL_TRC_BT2020_10:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_BT2020_10;
+-+            break;
+-+        case AVCOL_TRC_BT2020_12:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_BT2020_12;
+-+            break;
+-+        case AVCOL_TRC_SMPTE2084:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_SMPTE2084;
+-+            break;
+-+        case AVCOL_TRC_SMPTE428:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_SMPTE428;
+-+            break;
+-+        case AVCOL_TRC_ARIB_STD_B67:
+-+            transfer_characteristic = AMF_COLOR_TRANSFER_CHARACTERISTIC_ARIB_STD_B67;
+-+            break;
+-+    }
+-+    return transfer_characteristic;
+-+}
+-+
+- int ff_amf_get_color_profile(AVCodecContext *avctx)
+- {
+-     amf_int64 color_profile = AMF_VIDEO_CONVERTER_COLOR_PROFILE_UNKNOWN;
+-diff --git a/libavcodec/amfenc.h b/libavcodec/amfenc.h
+-index 0f2abcbd82..0c0624e786 100644
+---- a/libavcodec/amfenc.h
+-+++ b/libavcodec/amfenc.h
+-@@ -174,6 +174,8 @@ int ff_amf_receive_packet(AVCodecContext *avctx, AVPacket *avpkt);
+- */
+- extern const enum AVPixelFormat ff_amf_pix_fmts[];
+- 
+-+int ff_amf_get_color_primaries(AVCodecContext *avctx);
+-+int ff_amf_get_transfer_characteristic(AVCodecContext *avctx);
+- int ff_amf_get_color_profile(AVCodecContext *avctx);
+- 
+- /**
+-diff --git a/libavcodec/amfenc_av1.c b/libavcodec/amfenc_av1.c
+-index b40d54f70c..a947c1d232 100644
+---- a/libavcodec/amfenc_av1.c
+-+++ b/libavcodec/amfenc_av1.c
+-@@ -187,6 +187,8 @@ static av_cold int amf_encode_init_av1(AVCodecContext* avctx)
+-     AMFRate             framerate;
+-     AMFSize             framesize = AMFConstructSize(avctx->width, avctx->height);
+-     amf_int64           color_depth;
+-+    amf_int64           color_primaries;
+-+    amf_int64           transfer_characteristic;
+-     amf_int64           color_profile;
+-     enum                AVPixelFormat pix_fmt;
+- 
+-@@ -239,7 +241,11 @@ FF_ENABLE_DEPRECATION_WARNINGS
+-     }
+- 
+-     /// Color profile
+-+    color_primaries = ff_amf_get_color_primaries(avctx);
+-+    transfer_characteristic = ff_amf_get_transfer_characteristic(avctx);
+-     color_profile = ff_amf_get_color_profile(avctx);
+-+    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_COLOR_PRIMARIES, color_primaries);
+-+    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_TRANSFER_CHARACTERISTIC, transfer_characteristic);
+-     AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_COLOR_PROFILE, color_profile);
+- 
+-     /// Color Depth
+-@@ -251,16 +257,6 @@ FF_ENABLE_DEPRECATION_WARNINGS
+-     }
+- 
+-     AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_COLOR_BIT_DEPTH, color_depth);
+--    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_COLOR_PROFILE, color_profile);
+--    if (color_depth == AMF_COLOR_BIT_DEPTH_8) {
+--        /// Color Transfer Characteristics (AMF matches ISO/IEC)
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_TRANSFER_CHARACTERISTIC, AMF_COLOR_TRANSFER_CHARACTERISTIC_BT709);
+--        /// Color Primaries (AMF matches ISO/IEC)
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_COLOR_PRIMARIES, AMF_COLOR_PRIMARIES_BT709);
+--    } else {
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_TRANSFER_CHARACTERISTIC, AMF_COLOR_TRANSFER_CHARACTERISTIC_SMPTE2084);
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_AV1_OUTPUT_COLOR_PRIMARIES, AMF_COLOR_PRIMARIES_BT2020);
+--    }
+- 
+-     profile_level = avctx->level;
+-     if (profile_level == AV_LEVEL_UNKNOWN) {
+-diff --git a/libavcodec/amfenc_h264.c b/libavcodec/amfenc_h264.c
+-index 959be9eab6..2406f7401f 100644
+---- a/libavcodec/amfenc_h264.c
+-+++ b/libavcodec/amfenc_h264.c
+-@@ -202,6 +202,8 @@ static av_cold int amf_encode_init_h264(AVCodecContext *avctx)
+-     AMFRate                          framerate;
+-     AMFSize                          framesize = AMFConstructSize(avctx->width, avctx->height);
+-     int                              deblocking_filter = (avctx->flags & AV_CODEC_FLAG_LOOP_FILTER) ? 1 : 0;
+-+    amf_int64                        color_primaries;
+-+    amf_int64                        transfer_characteristic;
+-     amf_int64                        color_profile;
+-     enum                             AVPixelFormat pix_fmt;
+- 
+-@@ -274,7 +276,11 @@ FF_ENABLE_DEPRECATION_WARNINGS
+-         AMF_ASSIGN_PROPERTY_RATIO(res, ctx->encoder, AMF_VIDEO_ENCODER_ASPECT_RATIO, ratio);
+-     }
+- 
+-+    color_primaries = ff_amf_get_color_primaries(avctx);
+-+    transfer_characteristic = ff_amf_get_transfer_characteristic(avctx);
+-     color_profile = ff_amf_get_color_profile(avctx);
+-+    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_OUTPUT_COLOR_PRIMARIES, color_primaries);
+-+    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_OUTPUT_TRANSFER_CHARACTERISTIC, transfer_characteristic);
+-     AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_OUTPUT_COLOR_PROFILE, color_profile);
+- 
+-     /// Color Range (Support for older Drivers)
+-@@ -288,10 +294,6 @@ FF_ENABLE_DEPRECATION_WARNINGS
+-     AMF_RETURN_IF_FALSE(ctx, pix_fmt != AV_PIX_FMT_P010, AVERROR_INVALIDDATA, "10-bit input video is not supported by AMF H264 encoder\n");
+- 
+-     AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_COLOR_BIT_DEPTH, AMF_COLOR_BIT_DEPTH_8);
+--    /// Color Transfer Characteristics (AMF matches ISO/IEC)
+--    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_OUTPUT_TRANSFER_CHARACTERISTIC, (amf_int64)avctx->color_trc);
+--    /// Color Primaries (AMF matches ISO/IEC)
+--    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_OUTPUT_COLOR_PRIMARIES, (amf_int64)avctx->color_primaries);
+- 
+-     // autodetect rate control method
+-     if (ctx->rate_control_mode == AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_UNKNOWN) {
+-diff --git a/libavcodec/amfenc_hevc.c b/libavcodec/amfenc_hevc.c
+-index fc25dcec1a..9d3604d0ea 100644
+---- a/libavcodec/amfenc_hevc.c
+-+++ b/libavcodec/amfenc_hevc.c
+-@@ -168,6 +168,8 @@ static av_cold int amf_encode_init_hevc(AVCodecContext *avctx)
+-     AMFSize             framesize = AMFConstructSize(avctx->width, avctx->height);
+-     int                 deblocking_filter = (avctx->flags & AV_CODEC_FLAG_LOOP_FILTER) ? 1 : 0;
+-     amf_int64           color_depth;
+-+    amf_int64           color_primaries;
+-+    amf_int64           transfer_characteristic;
+-     amf_int64           color_profile;
+-     enum                AVPixelFormat pix_fmt;
+- 
+-@@ -242,7 +244,11 @@ FF_ENABLE_DEPRECATION_WARNINGS
+-         AMF_ASSIGN_PROPERTY_RATIO(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_ASPECT_RATIO, ratio);
+-     }
+- 
+-+    color_primaries = ff_amf_get_color_primaries(avctx);
+-+    transfer_characteristic = ff_amf_get_transfer_characteristic(avctx);
+-     color_profile = ff_amf_get_color_profile(avctx);
+-+    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_OUTPUT_COLOR_PRIMARIES, color_primaries);
+-+    AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_OUTPUT_TRANSFER_CHARACTERISTIC, transfer_characteristic);
+-     AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_OUTPUT_COLOR_PROFILE, color_profile);
+-     /// Color Range (Support for older Drivers)
+-     AMF_ASSIGN_PROPERTY_BOOL(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_NOMINAL_RANGE, !!(avctx->color_range == AVCOL_RANGE_JPEG));
+-@@ -254,15 +260,6 @@ FF_ENABLE_DEPRECATION_WARNINGS
+-         color_depth = AMF_COLOR_BIT_DEPTH_10;
+-     }
+-     AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_COLOR_BIT_DEPTH, color_depth);
+--    if (color_depth == AMF_COLOR_BIT_DEPTH_8) {
+--        /// Color Transfer Characteristics (AMF matches ISO/IEC)
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_OUTPUT_TRANSFER_CHARACTERISTIC, AMF_COLOR_TRANSFER_CHARACTERISTIC_BT709);
+--        /// Color Primaries (AMF matches ISO/IEC)
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_OUTPUT_COLOR_PRIMARIES, AMF_COLOR_PRIMARIES_BT709);
+--    } else {
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_OUTPUT_TRANSFER_CHARACTERISTIC, AMF_COLOR_TRANSFER_CHARACTERISTIC_SMPTE2084);
+--        AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_OUTPUT_COLOR_PRIMARIES, AMF_COLOR_PRIMARIES_BT2020);
+--    }
+- 
+-     // Picture control properties
+-     AMF_ASSIGN_PROPERTY_INT64(res, ctx->encoder, AMF_VIDEO_ENCODER_HEVC_NUM_GOPS_PER_IDR, ctx->gops_per_idr);
+--- 
+-2.39.5 (Apple Git-154)
+-
+diff --git a/contrib/ffmpeg/A19-libavcodec-qsv-enable-av1-scc.patch b/contrib/ffmpeg/A17-qsv-enable-av1-scc.patch
+similarity index 96%
+rename from contrib/ffmpeg/A19-libavcodec-qsv-enable-av1-scc.patch
+rename to contrib/ffmpeg/A17-qsv-enable-av1-scc.patch
+index f5bc8f9ee119..f39e91b08b4d 100644
+--- a/contrib/ffmpeg/A19-libavcodec-qsv-enable-av1-scc.patch
++++ b/contrib/ffmpeg/A17-qsv-enable-av1-scc.patch
+@@ -1,7 +1,7 @@
+-From 71b77865d4955440106015bd08172b876abed1f5 Mon Sep 17 00:00:00 2001
++From 33bf92742274132429d43b8a91e7a3124ca83a0d Mon Sep 17 00:00:00 2001
+ From: galinart <artem.galin@intel.com>
+ Date: Tue, 12 Nov 2024 15:50:06 +0000
+-Subject: [PATCH] qsv: enable av1 scc
++Subject: [PATCH 17/22] qsv: enable av1 scc
+ 
+ ---
+  libavcodec/qsvenc.c     | 42 +++++++++++++++++++++++++++++++++++++++++
+@@ -10,7 +10,7 @@ Subject: [PATCH] qsv: enable av1 scc
+  3 files changed, 53 insertions(+), 1 deletion(-)
+ 
+ diff --git a/libavcodec/qsvenc.c b/libavcodec/qsvenc.c
+-index c2bb5e5..284b608 100644
++index 039a108aae..95b0950fb8 100644
+ --- a/libavcodec/qsvenc.c
+ +++ b/libavcodec/qsvenc.c
+ @@ -494,6 +494,9 @@ static void dump_video_av1_param(AVCodecContext *avctx, QSVEncContext *q,
+@@ -89,7 +89,7 @@ index c2bb5e5..284b608 100644
+  
+      if (!QSV_RUNTIME_VERSION_ATLEAST(q->ver, 2, 5)) {
+ diff --git a/libavcodec/qsvenc.h b/libavcodec/qsvenc.h
+-index 4bc77f2..2e0a19b 100644
++index 4bc77f2f7c..2e0a19b203 100644
+ --- a/libavcodec/qsvenc.h
+ +++ b/libavcodec/qsvenc.h
+ @@ -38,6 +38,7 @@
+@@ -125,7 +125,7 @@ index 4bc77f2..2e0a19b 100644
+  
+  int ff_qsv_enc_init(AVCodecContext *avctx, QSVEncContext *q);
+ diff --git a/libavcodec/qsvenc_av1.c b/libavcodec/qsvenc_av1.c
+-index a86b409..4f035f3 100644
++index c7aa6e58d5..5edb5f3112 100644
+ --- a/libavcodec/qsvenc_av1.c
+ +++ b/libavcodec/qsvenc_av1.c
+ @@ -189,6 +189,10 @@ static const AVOption options[] = {
+@@ -140,5 +140,5 @@ index a86b409..4f035f3 100644
+  };
+  
+ -- 
+-2.25.1
++2.39.5 (Apple Git-154)
+ 
+diff --git a/contrib/ffmpeg/A30-qsv-fixed-BT2020-BT709-conversion.patch b/contrib/ffmpeg/A18-fixed-BT2020-BT709-conversion-via-VPP.patch
+similarity index 89%
+rename from contrib/ffmpeg/A30-qsv-fixed-BT2020-BT709-conversion.patch
+rename to contrib/ffmpeg/A18-fixed-BT2020-BT709-conversion-via-VPP.patch
+index 214f044f4322..9f8d32f7d2eb 100644
+--- a/contrib/ffmpeg/A30-qsv-fixed-BT2020-BT709-conversion.patch
++++ b/contrib/ffmpeg/A18-fixed-BT2020-BT709-conversion-via-VPP.patch
+@@ -1,14 +1,14 @@
+-From 9ff8a988aeb77fc8501f27e28d924a350d52c8a8 Mon Sep 17 00:00:00 2001
++From 96932782c964208a2554385258490edd1550c06d Mon Sep 17 00:00:00 2001
+ From: galinart <artem.galin@intel.com>
+ Date: Fri, 21 Feb 2025 09:41:34 +0000
+-Subject: [PATCH] fixed BT2020 -> BT709 conversion via VPP
++Subject: [PATCH 18/22] fixed BT2020 -> BT709 conversion via VPP
+ 
+ ---
+  libavfilter/vf_vpp_qsv.c | 6 +++---
+  1 file changed, 3 insertions(+), 3 deletions(-)
+ 
+ diff --git a/libavfilter/vf_vpp_qsv.c b/libavfilter/vf_vpp_qsv.c
+-index 7f05f1f..223e919 100644
++index 0a33c377c8..f4c796b7e7 100644
+ --- a/libavfilter/vf_vpp_qsv.c
+ +++ b/libavfilter/vf_vpp_qsv.c
+ @@ -494,9 +494,9 @@ static int vpp_set_frame_ext_params(AVFilterContext *ctx, const AVFrame *in, AVF
+@@ -25,5 +25,5 @@ index 7f05f1f..223e919 100644
+  
+      if (memcmp(&vpp->invsi_conf, &invsi_conf, sizeof(mfxExtVideoSignalInfo)) ||
+ -- 
+-2.25.1
++2.39.5 (Apple Git-154)
+ 
+diff --git a/contrib/ffmpeg/A12-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch b/contrib/ffmpeg/A19-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch
+similarity index 83%
+rename from contrib/ffmpeg/A12-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch
+rename to contrib/ffmpeg/A19-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch
+index 242956a6ef65..6ac153e40afb 100644
+--- a/contrib/ffmpeg/A12-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch
++++ b/contrib/ffmpeg/A19-videotoolbox-disable-H.264-10-bit-on-Intel-macOS-it-.patch
+@@ -1,7 +1,7 @@
+-From 6085fc84ba629e701e89dff9f9091d1374a10ad1 Mon Sep 17 00:00:00 2001
++From b2fea2782b6aef1120e6038c67dbd75c82ad8ee5 Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Wed, 20 Mar 2024 09:17:17 +0100
+-Subject: [PATCH 12/16] videotoolbox: disable H.264 10-bit on Intel macOS, it's
++Subject: [PATCH 19/22] videotoolbox: disable H.264 10-bit on Intel macOS, it's
+  not decoded properly. Disable H.264 level 6.1 and 6.2 too, seems to have
+  issue in some specific cases.
+ 
+@@ -10,10 +10,10 @@ Subject: [PATCH 12/16] videotoolbox: disable H.264 10-bit on Intel macOS, it's
+  1 file changed, 17 insertions(+)
+ 
+ diff --git a/libavcodec/videotoolbox.c b/libavcodec/videotoolbox.c
+-index 505483ef66..bbb00d2c8a 100644
++index ccba249140..0f8eea5baf 100644
+ --- a/libavcodec/videotoolbox.c
+ +++ b/libavcodec/videotoolbox.c
+-@@ -916,6 +916,23 @@ static int videotoolbox_start(AVCodecContext *avctx)
++@@ -956,6 +956,23 @@ static int videotoolbox_start(AVCodecContext *avctx)
+          break;
+      }
+  
+diff --git a/contrib/ffmpeg/A25-videotoolbox-speedup-decoding.patch b/contrib/ffmpeg/A20-videotoolbox-speedup-decoding.patch
+similarity index 83%
+rename from contrib/ffmpeg/A25-videotoolbox-speedup-decoding.patch
+rename to contrib/ffmpeg/A20-videotoolbox-speedup-decoding.patch
+index 9173b3c99251..9afc1870c2fe 100644
+--- a/contrib/ffmpeg/A25-videotoolbox-speedup-decoding.patch
++++ b/contrib/ffmpeg/A20-videotoolbox-speedup-decoding.patch
+@@ -1,7 +1,7 @@
+-From 1325e2dabe9220f0d24eb0da3c9c98b3f10efc88 Mon Sep 17 00:00:00 2001
++From 292b17a3df281d5a79558f372c06dd8977897719 Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Sat, 15 Feb 2025 09:47:36 +0100
+-Subject: [PATCH] videotoolbox: speedup decoding
++Subject: [PATCH 20/22] videotoolbox: speedup decoding
+ 
+ HandBrake doesn't need OpenGL compatibility or CVBuffer attachments, disable both for a minor performance improvement.
+ Align buffers to 16 to avoid additional automatic pixel conversions in VTCompressionSession.
+@@ -11,33 +11,33 @@ Align buffers to 16 to avoid additional automatic pixel conversions in VTCompres
+  2 files changed, 12 insertions(+), 5 deletions(-)
+ 
+ diff --git a/libavcodec/videotoolbox.c b/libavcodec/videotoolbox.c
+-index bbb00d2c8a..75fa4c6709 100644
++index 0f8eea5baf..9f00ee710d 100644
+ --- a/libavcodec/videotoolbox.c
+ +++ b/libavcodec/videotoolbox.c
+-@@ -108,9 +108,6 @@ static int videotoolbox_postproc_frame(void *avctx, AVFrame *frame)
++@@ -132,9 +132,6 @@ static int videotoolbox_postproc_frame(void *avctx, AVFrame *frame)
+      frame->crop_top = 0;
+      frame->crop_bottom = 0;
+-
++ 
+ -    if ((ret = av_vt_pixbuf_set_attachments(avctx, ref->pixbuf, frame)) < 0)
+ -        return ret;
+ -
+      frame->data[3] = (uint8_t*)ref->pixbuf;
+-
++ 
+      if (ref->hw_frames_ctx) {
+-@@ -790,7 +787,7 @@ static CFDictionaryRef videotoolbox_buffer_attributes_create(int width,
++@@ -820,7 +817,7 @@ static CFDictionaryRef videotoolbox_buffer_attributes_create(int width,
+  #if TARGET_OS_IPHONE
+      CFDictionarySetValue(buffer_attributes, kCVPixelBufferOpenGLESCompatibilityKey, kCFBooleanTrue);
+  #else
+ -    CFDictionarySetValue(buffer_attributes, kCVPixelBufferIOSurfaceOpenGLTextureCompatibilityKey, kCFBooleanTrue);
+ +    CFDictionarySetValue(buffer_attributes, kCVPixelBufferMetalCompatibilityKey, kCFBooleanTrue);
+  #endif
+-
++ 
+      CFRelease(io_surface_properties);
+ diff --git a/libavutil/hwcontext_videotoolbox.c b/libavutil/hwcontext_videotoolbox.c
+-index 122a61d5e7..04e0f0c418 100644
++index 102fa485e5..b7297a7211 100644
+ --- a/libavutil/hwcontext_videotoolbox.c
+ +++ b/libavutil/hwcontext_videotoolbox.c
+-@@ -183,7 +183,8 @@ static int vt_pool_alloc(AVHWFramesContext *ctx)
++@@ -185,7 +185,8 @@ static int vt_pool_alloc(AVHWFramesContext *ctx)
+      VTFramesContext *fctx = ctx->hwctx;
+      AVVTFramesContext *hw_ctx = &fctx->p;
+      CVReturn err;
+@@ -46,11 +46,11 @@ index 122a61d5e7..04e0f0c418 100644
+ +    int extend_w, extend_h;
+      uint32_t cv_pixfmt;
+      CFMutableDictionaryRef attributes, iosurface_properties;
+-
+-@@ -216,6 +217,15 @@ static int vt_pool_alloc(AVHWFramesContext *ctx)
++ 
++@@ -218,6 +219,15 @@ static int vt_pool_alloc(AVHWFramesContext *ctx)
+      CFRelease(w);
+      CFRelease(h);
+-
++ 
+ +    extend_w = FFALIGN(ctx->width,  16) - ctx->width;
+ +    extend_h = FFALIGN(ctx->height, 16) - ctx->height;
+ +    extend_w_num = CFNumberCreate(NULL, kCFNumberSInt32Type, &extend_w);
+@@ -63,6 +63,6 @@ index 122a61d5e7..04e0f0c418 100644
+      err = CVPixelBufferPoolCreate(
+          NULL,
+          NULL,
+---
++-- 
+ 2.39.5 (Apple Git-154)
+ 
+diff --git a/contrib/ffmpeg/A20-Revert-avcodec-amfenc-GPU-driver-version-check.patch b/contrib/ffmpeg/A21-Revert-avcodec-amfenc-GPU-driver-version-check.patch
+similarity index 59%
+rename from contrib/ffmpeg/A20-Revert-avcodec-amfenc-GPU-driver-version-check.patch
+rename to contrib/ffmpeg/A21-Revert-avcodec-amfenc-GPU-driver-version-check.patch
+index 9ac9895c3dce..1cc1f0adecef 100644
+--- a/contrib/ffmpeg/A20-Revert-avcodec-amfenc-GPU-driver-version-check.patch
++++ b/contrib/ffmpeg/A21-Revert-avcodec-amfenc-GPU-driver-version-check.patch
+@@ -1,7 +1,7 @@
+-From 9d5ef6ed5f21ccfb746667106fa1df3fdeef1a80 Mon Sep 17 00:00:00 2001
++From e34161a4c03ea448e033c9f2e50ba8131e182dca Mon Sep 17 00:00:00 2001
+ From: Damiano Galassi <damiog@gmail.com>
+ Date: Sat, 19 Oct 2024 09:50:44 +0200
+-Subject: [PATCH] Revert "avcodec/amfenc: GPU driver version check"
++Subject: [PATCH 21/22] Revert "avcodec/amfenc: GPU driver version check"
+ 
+ This reverts commit eda3fc60534c4a30f49c930611d4130427d08ff1.
+ 
+@@ -11,18 +11,18 @@ There is hardware with HEVC 10-bit encoders that has no updated drivers yet.
+  1 file changed, 4 deletions(-)
+ 
+ diff --git a/libavcodec/amfenc.c b/libavcodec/amfenc.c
+-index a83f5b2013..95fce9ac96 100644
++index b16b642e4c..4244e5b35b 100644
+ --- a/libavcodec/amfenc.c
+ +++ b/libavcodec/amfenc.c
+-@@ -415,10 +415,6 @@ static int amf_init_encoder(AVCodecContext *avctx)
++@@ -173,10 +173,6 @@ static int amf_init_encoder(AVCodecContext *avctx)
+      else
+          pix_fmt = avctx->pix_fmt;
+  
+ -    if (pix_fmt == AV_PIX_FMT_P010) {
+--        AMF_RETURN_IF_FALSE(ctx, ctx->version >= AMF_MAKE_FULL_VERSION(1, 4, 32, 0), AVERROR_UNKNOWN, "10-bit encoder is not supported by AMD GPU drivers versions lower than 23.30.\n");
++-        AMF_RETURN_IF_FALSE(ctx, amf_device_ctx->version >= AMF_MAKE_FULL_VERSION(1, 4, 32, 0), AVERROR_UNKNOWN, "10-bit encoder is not supported by AMD GPU drivers versions lower than 23.30.\n");
+ -    }
+ -
+-     ctx->format = amf_av_to_amf_format(pix_fmt);
++     ctx->format = av_av_to_amf_format(pix_fmt);
+      AMF_RETURN_IF_FALSE(ctx, ctx->format != AMF_SURFACE_UNKNOWN, AVERROR(EINVAL),
+                          "Format %s is not supported\n", av_get_pix_fmt_name(pix_fmt));
+ -- 
+diff --git a/contrib/ffmpeg/A22-movenc-ensure-chapters-track-extradata-is-not-null-a.patch b/contrib/ffmpeg/A22-movenc-ensure-chapters-track-extradata-is-not-null-a.patch
+new file mode 100644
+index 000000000000..5634c557f191
+--- /dev/null
++++ b/contrib/ffmpeg/A22-movenc-ensure-chapters-track-extradata-is-not-null-a.patch
+@@ -0,0 +1,30 @@
++From 18f1d7d36534f059c3a5709ff1facda6a26377bd Mon Sep 17 00:00:00 2001
++From: Damiano Galassi <damiog@gmail.com>
++Date: Fri, 22 Aug 2025 17:01:26 +0200
++Subject: [PATCH 22/22] movenc: ensure chapters track extradata is not null and
++ populated
++
++---
++ libavformat/movenc.c | 6 ++++++
++ 1 file changed, 6 insertions(+)
++
++diff --git a/libavformat/movenc.c b/libavformat/movenc.c
++index 4136a5d623..cb36f6d760 100644
++--- a/libavformat/movenc.c
+++++ b/libavformat/movenc.c
++@@ -7592,6 +7592,12 @@ static int mov_create_chapter_track(AVFormatContext *s, int tracknum)
++         return ret;
++     memcpy(track->par->extradata, stub_header, sizeof(stub_header));
++ 
+++    if (track->extradata == NULL) {
+++        track->stsd_count     = 1;
+++        track->extradata      = av_calloc(1, sizeof(*track->extradata));
+++        track->extradata_size = av_calloc(1, sizeof(*track->extradata_size));
+++    }
+++
++     track->extradata[0] = av_memdup(stub_header, sizeof(stub_header));
++     if (!track->extradata[0])
++         return AVERROR(ENOMEM);
++-- 
++2.39.5 (Apple Git-154)
++
+diff --git a/contrib/ffmpeg/A24-AV1-videotoolbox.patch b/contrib/ffmpeg/A24-AV1-videotoolbox.patch
+deleted file mode 100644
+index 9ba8b9bb0ce2..000000000000
+--- a/contrib/ffmpeg/A24-AV1-videotoolbox.patch
++++ /dev/null
+@@ -1,387 +0,0 @@
+-From f9c5c5358cfef3847674c6f3b3ded9611ebc5647 Mon Sep 17 00:00:00 2001
+-From: =?UTF-8?q?Jan=20Ekstr=C3=B6m?= <jeebjp@gmail.com>
+-Date: Fri, 10 Nov 2023 22:11:44 +0200
+-Subject: [PATCH] avcodec/videotoolbox: add AV1 hardware acceleration
+-MIME-Version: 1.0
+-Content-Type: text/plain; charset=UTF-8
+-Content-Transfer-Encoding: 8bit
+-
+-Use AV1DecContext's current_obu to access the original OBUs, and
+-feed them to videotoolbox, rather than the bare slice data passed
+-via decode_slice.
+-
+-This requires a small addition to AV1DecContext, for keeping track
+-of the current range of OBUs that belong to the current frame.
+-
+-Co-authored-by: Ruslan Chernenko <ractyfree@gmail.com>
+-Co-authored-by: Martin Storsjö <martin@martin.st>
+-Signed-off-by: Martin Storsjö <martin@martin.st>
+----
+- configure                     |   4 ++
+- libavcodec/Makefile           |   1 +
+- libavcodec/av1dec.c           |  22 ++++++-
+- libavcodec/av1dec.h           |   3 +-
+- libavcodec/hwaccels.h         |   1 +
+- libavcodec/version.h          |   2 +-
+- libavcodec/videotoolbox.c     |  34 +++++++++++
+- libavcodec/videotoolbox_av1.c | 105 ++++++++++++++++++++++++++++++++++
+- libavcodec/vt_internal.h      |   4 ++
+- 9 files changed, 171 insertions(+), 5 deletions(-)
+- create mode 100644 libavcodec/videotoolbox_av1.c
+-
+-diff --git a/configure b/configure
+-index c8fb49a7a4a58..dc1b9b2bea1be 100755
+---- a/configure
+-+++ b/configure
+-@@ -2467,6 +2467,7 @@ TYPES_LIST="
+-     kCMVideoCodecType_HEVC
+-     kCMVideoCodecType_HEVCWithAlpha
+-     kCMVideoCodecType_VP9
+-+    kCMVideoCodecType_AV1
+-     kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
+-     kCVPixelFormatType_422YpCbCr8BiPlanarVideoRange
+-     kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange
+-@@ -3174,6 +3175,8 @@ av1_vaapi_hwaccel_deps="vaapi VADecPictureParameterBufferAV1_bit_depth_idx"
+- av1_vaapi_hwaccel_select="av1_decoder"
+- av1_vdpau_hwaccel_deps="vdpau VdpPictureInfoAV1"
+- av1_vdpau_hwaccel_select="av1_decoder"
+-+av1_videotoolbox_hwaccel_deps="videotoolbox"
+-+av1_videotoolbox_hwaccel_select="av1_decoder"
+- av1_vulkan_hwaccel_deps="vulkan"
+- av1_vulkan_hwaccel_select="av1_decoder"
+- h263_vaapi_hwaccel_deps="vaapi"
+-@@ -6708,6 +6711,7 @@ enabled videotoolbox && {
+-     check_func_headers CoreMedia/CMFormatDescription.h kCMVideoCodecType_HEVC "-framework CoreMedia"
+-     check_func_headers CoreMedia/CMFormatDescription.h kCMVideoCodecType_HEVCWithAlpha "-framework CoreMedia"
+-     check_func_headers CoreMedia/CMFormatDescription.h kCMVideoCodecType_VP9 "-framework CoreMedia"
+-+    check_func_headers CoreMedia/CMFormatDescription.h kCMVideoCodecType_AV1 "-framework CoreMedia"
+-     check_func_headers CoreVideo/CVPixelBuffer.h kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange "-framework CoreVideo"
+-     check_func_headers CoreVideo/CVPixelBuffer.h kCVPixelFormatType_422YpCbCr8BiPlanarVideoRange "-framework CoreVideo"
+-     check_func_headers CoreVideo/CVPixelBuffer.h kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange "-framework CoreVideo"
+-diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+-index a4fcce3b42156..21188b2479c73 100644
+---- a/libavcodec/Makefile
+-+++ b/libavcodec/Makefile
+-@@ -1008,6 +1008,7 @@ OBJS-$(CONFIG_AV1_D3D12VA_HWACCEL)        += dxva2_av1.o d3d12va_av1.o
+- OBJS-$(CONFIG_AV1_NVDEC_HWACCEL)          += nvdec_av1.o
+- OBJS-$(CONFIG_AV1_VAAPI_HWACCEL)          += vaapi_av1.o
+- OBJS-$(CONFIG_AV1_VDPAU_HWACCEL)          += vdpau_av1.o
+-+OBJS-$(CONFIG_AV1_VIDEOTOOLBOX_HWACCEL)   += videotoolbox_av1.o
+- OBJS-$(CONFIG_AV1_VULKAN_HWACCEL)         += vulkan_decode.o vulkan_av1.o
+- OBJS-$(CONFIG_H263_VAAPI_HWACCEL)         += vaapi_mpeg4.o
+- OBJS-$(CONFIG_H263_VIDEOTOOLBOX_HWACCEL)  += videotoolbox.o
+-diff --git a/libavcodec/av1dec.c b/libavcodec/av1dec.c
+-index 1d5b9ef4f4c62..6a9de07d16faa 100644
+---- a/libavcodec/av1dec.c
+-+++ b/libavcodec/av1dec.c
+-@@ -541,6 +541,7 @@ static int get_pixel_format(AVCodecContext *avctx)
+-                      CONFIG_AV1_NVDEC_HWACCEL + \
+-                      CONFIG_AV1_VAAPI_HWACCEL + \
+-                      CONFIG_AV1_VDPAU_HWACCEL + \
+-+                     CONFIG_AV1_VIDEOTOOLBOX_HWACCEL + \
+-                      CONFIG_AV1_VULKAN_HWACCEL)
+-     enum AVPixelFormat pix_fmts[HWACCEL_MAX + 2], *fmtp = pix_fmts;
+- 
+-@@ -568,6 +569,9 @@ static int get_pixel_format(AVCodecContext *avctx)
+- #if CONFIG_AV1_VDPAU_HWACCEL
+-         *fmtp++ = AV_PIX_FMT_VDPAU;
+- #endif
+-+#if CONFIG_AV1_VIDEOTOOLBOX_HWACCEL
+-+        *fmtp++ = AV_PIX_FMT_VIDEOTOOLBOX;
+-+#endif
+- #if CONFIG_AV1_VULKAN_HWACCEL
+-         *fmtp++ = AV_PIX_FMT_VULKAN;
+- #endif
+-@@ -592,6 +596,9 @@ static int get_pixel_format(AVCodecContext *avctx)
+- #if CONFIG_AV1_VDPAU_HWACCEL
+-         *fmtp++ = AV_PIX_FMT_VDPAU;
+- #endif
+-+#if CONFIG_AV1_VIDEOTOOLBOX_HWACCEL
+-+        *fmtp++ = AV_PIX_FMT_VIDEOTOOLBOX;
+-+#endif
+- #if CONFIG_AV1_VULKAN_HWACCEL
+-         *fmtp++ = AV_PIX_FMT_VULKAN;
+- #endif
+-@@ -1439,6 +1446,10 @@ static int av1_receive_frame_internal(AVCodecContext *avctx, AVFrame *frame)
+- 
+-         if (raw_tile_group && (s->tile_num == raw_tile_group->tg_end + 1)) {
+-             int show_frame = s->raw_frame_header->show_frame;
+-+            // Set nb_unit to point at the next OBU, to indicate which
+-+            // OBUs have been processed for this current frame. (If this
+-+            // frame gets output, we set nb_unit to this value later too.)
+-+            s->nb_unit = i + 1;
+-             if (avctx->hwaccel && s->cur_frame.f) {
+-                 ret = FF_HW_SIMPLE_CALL(avctx, end_frame);
+-                 if (ret < 0) {
+-@@ -1449,6 +1460,8 @@ static int av1_receive_frame_internal(AVCodecContext *avctx, AVFrame *frame)
+- 
+-             update_reference_list(avctx);
+- 
+-+            // Set start_unit to indicate the first OBU of the next frame.
+-+            s->start_unit       = s->nb_unit;
+-             raw_tile_group      = NULL;
+-             s->raw_frame_header = NULL;
+- 
+-@@ -1478,7 +1491,7 @@ static int av1_receive_frame_internal(AVCodecContext *avctx, AVFrame *frame)
+-             s->raw_frame_header = NULL;
+-         av_packet_unref(s->pkt);
+-         ff_cbs_fragment_reset(&s->current_obu);
+--        s->nb_unit = 0;
+-+        s->nb_unit = s->start_unit = 0;
+-     }
+-     if (!ret && !frame->buf[0])
+-         ret = AVERROR(EAGAIN);
+-@@ -1505,7 +1518,7 @@ static int av1_receive_frame(AVCodecContext *avctx, AVFrame *frame)
+-                 return ret;
+-             }
+- 
+--            s->nb_unit = 0;
+-+            s->nb_unit = s->start_unit = 0;
+-             av_log(avctx, AV_LOG_DEBUG, "Total OBUs on this packet: %d.\n",
+-                    s->current_obu.nb_units);
+-         }
+-@@ -1526,7 +1539,7 @@ static void av1_decode_flush(AVCodecContext *avctx)
+- 
+-     av1_frame_unref(&s->cur_frame);
+-     s->operating_point_idc = 0;
+--    s->nb_unit = 0;
+-+    s->nb_unit = s->start_unit = 0;
+-     s->raw_frame_header = NULL;
+-     s->raw_seq = NULL;
+-     s->cll = NULL;
+-@@ -1594,6 +1607,9 @@ const FFCodec ff_av1_decoder = {
+- #if CONFIG_AV1_VDPAU_HWACCEL
+-         HWACCEL_VDPAU(av1),
+- #endif
+-+#if CONFIG_AV1_VIDEOTOOLBOX_HWACCEL
+-+        HWACCEL_VIDEOTOOLBOX(av1),
+-+#endif
+- #if CONFIG_AV1_VULKAN_HWACCEL
+-         HWACCEL_VULKAN(av1),
+- #endif
+-diff --git a/libavcodec/av1dec.h b/libavcodec/av1dec.h
+-index 8b2a7b08961e6..10c807f73f98f 100644
+---- a/libavcodec/av1dec.h
+-+++ b/libavcodec/av1dec.h
+-@@ -114,7 +114,8 @@ typedef struct AV1DecContext {
+-     AV1Frame ref[AV1_NUM_REF_FRAMES];
+-     AV1Frame cur_frame;
+- 
+--    int nb_unit;
+-+    int nb_unit;           ///< The index of the next OBU to be processed.
+-+    int start_unit;        ///< The index of the first OBU of the current frame.
+- 
+-     // AVOptions
+-     int operating_point;
+-diff --git a/libavcodec/hwaccels.h b/libavcodec/hwaccels.h
+-index 5171e4c7d7357..2b9bdc8fc97ad 100644
+---- a/libavcodec/hwaccels.h
+-+++ b/libavcodec/hwaccels.h
+-@@ -26,6 +26,7 @@ extern const struct FFHWAccel ff_av1_dxva2_hwaccel;
+- extern const struct FFHWAccel ff_av1_nvdec_hwaccel;
+- extern const struct FFHWAccel ff_av1_vaapi_hwaccel;
+- extern const struct FFHWAccel ff_av1_vdpau_hwaccel;
+-+extern const struct FFHWAccel ff_av1_videotoolbox_hwaccel;
+- extern const struct FFHWAccel ff_av1_vulkan_hwaccel;
+- extern const struct FFHWAccel ff_h263_vaapi_hwaccel;
+- extern const struct FFHWAccel ff_h263_videotoolbox_hwaccel;
+-diff --git a/libavcodec/videotoolbox.c b/libavcodec/videotoolbox.c
+-index 505483ef66d7a..a5a76e83271fc 100644
+---- a/libavcodec/videotoolbox.c
+-+++ b/libavcodec/videotoolbox.c
+-@@ -56,6 +56,10 @@ enum { kCMVideoCodecType_HEVC = 'hvc1' };
+- enum { kCMVideoCodecType_VP9 = 'vp09' };
+- #endif
+- 
+-+#if !HAVE_KCMVIDEOCODECTYPE_AV1
+-+enum { kCMVideoCodecType_AV1 = 'av01' };
+-+#endif
+-+
+- #define VIDEOTOOLBOX_ESDS_EXTRADATA_PADDING  12
+- 
+- typedef struct VTHWFrame {
+-@@ -92,6 +96,26 @@ int ff_videotoolbox_buffer_copy(VTContext *vtctx,
+-     return 0;
+- }
+- 
+-+int ff_videotoolbox_buffer_append(VTContext *vtctx,
+-+                                 const uint8_t *buffer,
+-+                                 uint32_t size)
+-+{
+-+    void *tmp;
+-+
+-+    tmp = av_fast_realloc(vtctx->bitstream,
+-+                          &vtctx->allocated_size,
+-+                          vtctx->bitstream_size + size);
+-+
+-+    if (!tmp)
+-+        return AVERROR(ENOMEM);
+-+
+-+    vtctx->bitstream = tmp;
+-+    memcpy(vtctx->bitstream + vtctx->bitstream_size, buffer, size);
+-+    vtctx->bitstream_size += size;
+-+
+-+    return 0;
+-+}
+-+
+- static int videotoolbox_postproc_frame(void *avctx, AVFrame *frame)
+- {
+-     int ret;
+-@@ -846,6 +870,13 @@ static CFDictionaryRef videotoolbox_decoder_config_create(CMVideoCodecType codec
+-         if (data)
+-             CFDictionarySetValue(avc_info, CFSTR("vpcC"), data);
+-         break;
+-+#endif
+-+#if CONFIG_AV1_VIDEOTOOLBOX_HWACCEL
+-+    case kCMVideoCodecType_AV1 :
+-+        data = ff_videotoolbox_av1c_extradata_create(avctx);
+-+        if (data)
+-+            CFDictionarySetValue(avc_info, CFSTR("av1C"), data);
+-+        break;
+- #endif
+-     default:
+-         break;
+-@@ -912,6 +943,9 @@ static int videotoolbox_start(AVCodecContext *avctx)
+-     case AV_CODEC_ID_VP9 :
+-         videotoolbox->cm_codec_type = kCMVideoCodecType_VP9;
+-         break;
+-+    case AV_CODEC_ID_AV1 :
+-+        videotoolbox->cm_codec_type = kCMVideoCodecType_AV1;
+-+        break;
+-     default :
+-         break;
+-     }
+-diff --git a/libavcodec/videotoolbox_av1.c b/libavcodec/videotoolbox_av1.c
+-new file mode 100644
+-index 0000000000000..b4d39194d5d0f
+---- /dev/null
+-+++ b/libavcodec/videotoolbox_av1.c
+-@@ -0,0 +1,105 @@
+-+/*
+-+ * Videotoolbox hardware acceleration for AV1
+-+ * Copyright (c) 2023 Jan Ekström
+-+ * Copyright (c) 2024 Ruslan Chernenko
+-+ * Copyright (c) 2024 Martin Storsjö
+-+ *
+-+ * This file is part of FFmpeg.
+-+ *
+-+ * FFmpeg is free software; you can redistribute it and/or
+-+ * modify it under the terms of the GNU Lesser General Public
+-+ * License as published by the Free Software Foundation; either
+-+ * version 2.1 of the License, or (at your option) any later version.
+-+ *
+-+ * FFmpeg is distributed in the hope that it will be useful,
+-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-+ * Lesser General Public License for more details.
+-+ *
+-+ * You should have received a copy of the GNU Lesser General Public
+-+ * License along with FFmpeg; if not, write to the Free Software
+-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+-+ */
+-+
+-+#include "libavutil/mem.h"
+-+
+-+#include "av1dec.h"
+-+#include "hwaccel_internal.h"
+-+#include "internal.h"
+-+#include "vt_internal.h"
+-+
+-+CFDataRef ff_videotoolbox_av1c_extradata_create(AVCodecContext *avctx)
+-+{
+-+    AV1DecContext *s = avctx->priv_data;
+-+    uint8_t *buf;
+-+    CFDataRef data;
+-+    if (!s->raw_seq)
+-+        return NULL;
+-+
+-+    buf = av_malloc(s->seq_data_ref->size + 4);
+-+    if (!buf)
+-+        return NULL;
+-+    buf[0] = 0x81; // version and marker (constant)
+-+    buf[1] = s->raw_seq->seq_profile << 5 | s->raw_seq->seq_level_idx[0];
+-+    buf[2] = s->raw_seq->seq_tier[0]                << 7 |
+-+             s->raw_seq->color_config.high_bitdepth << 6 |
+-+             s->raw_seq->color_config.twelve_bit    << 5 |
+-+             s->raw_seq->color_config.mono_chrome   << 4 |
+-+             s->raw_seq->color_config.subsampling_x << 3 |
+-+             s->raw_seq->color_config.subsampling_y << 2 |
+-+             s->raw_seq->color_config.chroma_sample_position;
+-+
+-+    if (s->raw_seq->initial_display_delay_present_flag)
+-+        buf[3] = 0 << 5 |
+-+                 s->raw_seq->initial_display_delay_present_flag << 4 |
+-+                 s->raw_seq->initial_display_delay_minus_1[0];
+-+    else
+-+        buf[3] = 0x00;
+-+    memcpy(buf + 4, s->seq_data_ref->data, s->seq_data_ref->size);
+-+    data = CFDataCreate(kCFAllocatorDefault, buf, s->seq_data_ref->size + 4);
+-+    av_free(buf);
+-+    return data;
+-+};
+-+
+-+
+-+static int videotoolbox_av1_start_frame(AVCodecContext *avctx,
+-+                                        const uint8_t *buffer,
+-+                                        uint32_t size)
+-+{
+-+    return 0;
+-+}
+-+
+-+static int videotoolbox_av1_decode_slice(AVCodecContext *avctx,
+-+                                         const uint8_t *buffer,
+-+                                         uint32_t size)
+-+{
+-+    return 0;
+-+}
+-+
+-+static int videotoolbox_av1_end_frame(AVCodecContext *avctx)
+-+{
+-+    const AV1DecContext *s = avctx->priv_data;
+-+    VTContext *vtctx = avctx->internal->hwaccel_priv_data;
+-+    AVFrame *frame = s->cur_frame.f;
+-+
+-+    vtctx->bitstream_size = 0;
+-+    for (int i = s->start_unit; i < s->nb_unit; i++)
+-+        ff_videotoolbox_buffer_append(vtctx, s->current_obu.units[i].data,
+-+                                      s->current_obu.units[i].data_size);
+-+    return ff_videotoolbox_common_end_frame(avctx, frame);
+-+}
+-+
+-+const FFHWAccel ff_av1_videotoolbox_hwaccel = {
+-+    .p.name         = "av1_videotoolbox",
+-+    .p.type         = AVMEDIA_TYPE_VIDEO,
+-+    .p.id           = AV_CODEC_ID_AV1,
+-+    .p.pix_fmt      = AV_PIX_FMT_VIDEOTOOLBOX,
+-+    .alloc_frame    = ff_videotoolbox_alloc_frame,
+-+    .start_frame    = videotoolbox_av1_start_frame,
+-+    .decode_slice   = videotoolbox_av1_decode_slice,
+-+    .end_frame      = videotoolbox_av1_end_frame,
+-+    .frame_params   = ff_videotoolbox_frame_params,
+-+    .init           = ff_videotoolbox_common_init,
+-+    .uninit         = ff_videotoolbox_uninit,
+-+    .priv_data_size = sizeof(VTContext),
+-+};
+-diff --git a/libavcodec/vt_internal.h b/libavcodec/vt_internal.h
+-index 9502d7c7dc373..effa96fc15c92 100644
+---- a/libavcodec/vt_internal.h
+-+++ b/libavcodec/vt_internal.h
+-@@ -56,6 +56,9 @@ int ff_videotoolbox_frame_params(AVCodecContext *avctx,
+- int ff_videotoolbox_buffer_copy(VTContext *vtctx,
+-                                 const uint8_t *buffer,
+-                                 uint32_t size);
+-+int ff_videotoolbox_buffer_append(VTContext *vtctx,
+-+                                  const uint8_t *buffer,
+-+                                  uint32_t size);
+- int ff_videotoolbox_uninit(AVCodecContext *avctx);
+- int ff_videotoolbox_h264_start_frame(AVCodecContext *avctx,
+-                                      const uint8_t *buffer,
+-@@ -64,6 +67,7 @@ int ff_videotoolbox_h264_decode_slice(AVCodecContext *avctx,
+-                                       const uint8_t *buffer,
+-                                       uint32_t size);
+- int ff_videotoolbox_common_end_frame(AVCodecContext *avctx, AVFrame *frame);
+-+CFDataRef ff_videotoolbox_av1c_extradata_create(AVCodecContext *avctx);
+- CFDataRef ff_videotoolbox_avcc_extradata_create(AVCodecContext *avctx);
+- CFDataRef ff_videotoolbox_hvcc_extradata_create(AVCodecContext *avctx);
+- CFDataRef ff_videotoolbox_vpcc_extradata_create(AVCodecContext *avctx);
+- 
+\ No newline at end of file
+diff --git a/contrib/ffmpeg/A28-enable-av1_mf-encoder.patch b/contrib/ffmpeg/A28-enable-av1_mf-encoder.patch
+deleted file mode 100644
+index ec47fdd25c9a..000000000000
+--- a/contrib/ffmpeg/A28-enable-av1_mf-encoder.patch
++++ /dev/null
+@@ -1,65 +0,0 @@
+-diff --git a/configure b/configure
+-index d77a55b653..810d34dc06 100755
+---- a/configure
+-+++ b/configure
+-@@ -3336,6 +3336,7 @@ av1_cuvid_decoder_deps="cuvid CUVIDAV1PICPARAMS"
+- av1_mediacodec_decoder_deps="mediacodec"
+- av1_mediacodec_encoder_deps="mediacodec"
+- av1_mediacodec_encoder_select="extract_extradata_bsf"
+-+av1_mf_encoder_deps="mediafoundation"
+- av1_nvenc_encoder_deps="nvenc NV_ENC_PIC_PARAMS_AV1"
+- av1_nvenc_encoder_select="atsc_a53"
+- av1_qsv_decoder_select="qsvdec"
+-diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
+-index aa0fc47647..f5317616b7 100644
+---- a/libavcodec/allcodecs.c
+-+++ b/libavcodec/allcodecs.c
+-@@ -838,6 +838,7 @@ extern const FFCodec ff_av1_nvenc_encoder;
+- extern const FFCodec ff_av1_qsv_decoder;
+- extern const FFCodec ff_av1_qsv_encoder;
+- extern const FFCodec ff_av1_amf_encoder;
+-+extern const FFCodec ff_av1_mf_encoder;
+- extern const FFCodec ff_av1_vaapi_encoder;
+- extern const FFCodec ff_libopenh264_encoder;
+- extern const FFCodec ff_libopenh264_decoder;
+-diff --git a/libavcodec/mf_utils.c b/libavcodec/mf_utils.c
+-index 48e3a63efc..ff44130ca9 100644
+---- a/libavcodec/mf_utils.c
+-+++ b/libavcodec/mf_utils.c
+-@@ -240,6 +240,7 @@ static struct GUID_Entry guid_names[] = {
+-     GUID_ENTRY(MFMediaType_Video),
+-     GUID_ENTRY(MFAudioFormat_PCM),
+-     GUID_ENTRY(MFAudioFormat_Float),
+-+    GUID_ENTRY(ff_MFVideoFormat_AV1),
+-     GUID_ENTRY(MFVideoFormat_H264),
+-     GUID_ENTRY(MFVideoFormat_H264_ES),
+-     GUID_ENTRY(ff_MFVideoFormat_HEVC),
+-@@ -507,6 +508,7 @@ void ff_media_type_dump(void *log, IMFMediaType *type)
+- const CLSID *ff_codec_to_mf_subtype(enum AVCodecID codec)
+- {
+-     switch (codec) {
+-+    case AV_CODEC_ID_AV1:               return &ff_MFVideoFormat_AV1;
+-     case AV_CODEC_ID_H264:              return &MFVideoFormat_H264;
+-     case AV_CODEC_ID_HEVC:              return &ff_MFVideoFormat_HEVC;
+-     case AV_CODEC_ID_AC3:               return &MFAudioFormat_Dolby_AC3;
+-diff --git a/libavcodec/mf_utils.h b/libavcodec/mf_utils.h
+-index 387c005f38..a59b36d015 100644
+---- a/libavcodec/mf_utils.h
+-+++ b/libavcodec/mf_utils.h
+-@@ -113,6 +113,7 @@ DEFINE_GUID(ff_MF_SA_MINIMUM_OUTPUT_SAMPLE_COUNT_PROGRESSIVE, 0xf5523a5, 0x1cb2,
+- 
+- DEFINE_MEDIATYPE_GUID(ff_MFVideoFormat_HEVC, 0x43564548); // FCC('HEVC')
+- DEFINE_MEDIATYPE_GUID(ff_MFVideoFormat_HEVC_ES, 0x53564548); // FCC('HEVS')
+-+DEFINE_MEDIATYPE_GUID(ff_MFVideoFormat_AV1, 0x31305641); // FCC('AV01')
+- 
+- 
+- // This enum is missing from mingw-w64's codecapi.h by v7.0.0.
+-diff --git a/libavcodec/mfenc.c b/libavcodec/mfenc.c
+-index b8f8a25f43..c062d87f11 100644
+---- a/libavcodec/mfenc.c
+-+++ b/libavcodec/mfenc.c
+-@@ -1315,3 +1315,4 @@ static const FFCodecDefault defaults[] = {
+- 
+- MF_ENCODER(VIDEO, h264,        H264, venc_opts, VFMTS, VCAPS, defaults);
+- MF_ENCODER(VIDEO, hevc,        HEVC, venc_opts, VFMTS, VCAPS, defaults);
+-+MF_ENCODER(VIDEO, av1,         AV1,  venc_opts, VFMTS, VCAPS, defaults);
+diff --git a/contrib/ffmpeg/A31-Parse-EAC3-Atmos-ComplexityIndex-for-MP4-remuxing.patch b/contrib/ffmpeg/A31-Parse-EAC3-Atmos-ComplexityIndex-for-MP4-remuxing.patch
+deleted file mode 100644
+index c757636660f2..000000000000
+--- a/contrib/ffmpeg/A31-Parse-EAC3-Atmos-ComplexityIndex-for-MP4-remuxing.patch
++++ /dev/null
+@@ -1,751 +0,0 @@
+-From d04f99e1c58623777d6405a7d5c02ff09fcf3117 Mon Sep 17 00:00:00 2001
+-From: nyanmisaka <nst799610810@gmail.com>
+-From: James Almer <jamrial@gmail.com>
+-Date: Tue, 3 Jun 2025 23:41:02 +0800
+-Subject: [PATCH] Parse EAC3 Atmos ComplexityIndex for MP4 remuxing
+-
+-Signed-off-by: James Almer <jamrial@gmail.com>
+----
+- libavcodec/ac3_parser.c          | 225 ++++++++++++++++++++++++++++++-
+- libavcodec/ac3_parser_internal.h |  19 +++
+- libavcodec/ac3dec.c              |  88 +++---------
+- libavcodec/ac3dec.h              |   3 +-
+- libavcodec/ac3defs.h             |   2 +
+- libavcodec/eac3dec.c             | 154 +++------------------
+- libavformat/movenc.c             |  30 ++---
+- 7 files changed, 297 insertions(+), 224 deletions(-)
+-
+-diff --git a/libavcodec/ac3_parser.c b/libavcodec/ac3_parser.c
+-index 69989690dd..a8bc3afc74 100644
+---- a/libavcodec/ac3_parser.c
+-+++ b/libavcodec/ac3_parser.c
+-@@ -73,6 +73,217 @@ int ff_ac3_find_syncword(const uint8_t *buf, int buf_size)
+-     return i;
+- }
+- 
+-+/**
+-+ * Parse the 'sync info' and 'bit stream info' from the AC-3 bitstream.
+-+ * GetBitContext within AC3DecodeContext must point to
+-+ * the start of the synchronized AC-3 bitstream.
+-+ */
+-+static int ac3_parse_header(GetBitContext *gbc, AC3HeaderInfo *hdr)
+-+{
+-+    /* read the rest of the bsi. read twice for dual mono mode. */
+-+    for (int i = 0; i < (hdr->channel_mode ? 1 : 2); i++) {
+-+        hdr->dialog_normalization[i] = -get_bits(gbc, 5);
+-+        hdr->compression_exists[i] = get_bits1(gbc);
+-+        if (hdr->compression_exists[i])
+-+            hdr->heavy_dynamic_range[i] = get_bits(gbc, 8);
+-+        if (get_bits1(gbc))
+-+            skip_bits(gbc, 8); //skip language code
+-+        if (get_bits1(gbc))
+-+            skip_bits(gbc, 7); //skip audio production information
+-+    }
+-+
+-+    skip_bits(gbc, 2); //skip copyright bit and original bitstream bit
+-+
+-+    /* skip the timecodes or parse the Alternate Bit Stream Syntax */
+-+    if (hdr->bitstream_id != 6) {
+-+        if (get_bits1(gbc))
+-+            skip_bits(gbc, 14); //skip timecode1
+-+        if (get_bits1(gbc))
+-+            skip_bits(gbc, 14); //skip timecode2
+-+    } else {
+-+        if (get_bits1(gbc)) {
+-+            hdr->preferred_downmix       = get_bits(gbc, 2);
+-+            hdr->center_mix_level_ltrt   = get_bits(gbc, 3);
+-+            hdr->surround_mix_level_ltrt = av_clip(get_bits(gbc, 3), 3, 7);
+-+            hdr->center_mix_level        = get_bits(gbc, 3);
+-+            hdr->surround_mix_level      = av_clip(get_bits(gbc, 3), 3, 7);
+-+        }
+-+        if (get_bits1(gbc)) {
+-+            hdr->dolby_surround_ex_mode = get_bits(gbc, 2);
+-+            hdr->dolby_headphone_mode   = get_bits(gbc, 2);
+-+            skip_bits(gbc, 10); // skip adconvtyp (1), xbsi2 (8), encinfo (1)
+-+        }
+-+    }
+-+
+-+    /* skip additional bitstream info */
+-+    if (get_bits1(gbc)) {
+-+        int i = get_bits(gbc, 6);
+-+        do {
+-+            skip_bits(gbc, 8);
+-+        } while (i--);
+-+    }
+-+
+-+    return 0;
+-+}
+-+
+-+static int eac3_parse_header(GetBitContext *gbc, AC3HeaderInfo *hdr)
+-+{
+-+    if (hdr->frame_type == EAC3_FRAME_TYPE_RESERVED)
+-+        return AC3_PARSE_ERROR_FRAME_TYPE;
+-+    if (hdr->substreamid)
+-+        return AC3_PARSE_ERROR_FRAME_TYPE;
+-+
+-+    skip_bits(gbc, 5); // skip bitstream id
+-+
+-+    /* volume control params */
+-+    for (int i = 0; i < (hdr->channel_mode ? 1 : 2); i++) {
+-+        hdr->dialog_normalization[i] = -get_bits(gbc, 5);
+-+        hdr->compression_exists[i] = get_bits1(gbc);
+-+        if (hdr->compression_exists[i])
+-+            hdr->heavy_dynamic_range[i] = get_bits(gbc, 8);
+-+    }
+-+
+-+    /* dependent stream channel map */
+-+    if (hdr->frame_type == EAC3_FRAME_TYPE_DEPENDENT) {
+-+        hdr->channel_map_present = get_bits1(gbc);
+-+        if (hdr->channel_map_present) {
+-+            int64_t channel_layout = 0;
+-+            int channel_map = get_bits(gbc, 16);
+-+
+-+            for (int i = 0; i < 16; i++)
+-+                if (channel_map & (1 << (EAC3_MAX_CHANNELS - i - 1)))
+-+                    channel_layout |= ff_eac3_custom_channel_map_locations[i][1];
+-+
+-+            if (av_popcount64(channel_layout) > EAC3_MAX_CHANNELS) {
+-+                return AC3_PARSE_ERROR_CHANNEL_MAP;
+-+            }
+-+            hdr->channel_map = channel_map;
+-+        }
+-+    }
+-+
+-+    /* mixing metadata */
+-+    if (get_bits1(gbc)) {
+-+        /* center and surround mix levels */
+-+        if (hdr->channel_mode > AC3_CHMODE_STEREO) {
+-+            hdr->preferred_downmix = get_bits(gbc, 2);
+-+            if (hdr->channel_mode & 1) {
+-+                /* if three front channels exist */
+-+                hdr->center_mix_level_ltrt = get_bits(gbc, 3);
+-+                hdr->center_mix_level      = get_bits(gbc, 3);
+-+            }
+-+            if (hdr->channel_mode & 4) {
+-+                /* if a surround channel exists */
+-+                hdr->surround_mix_level_ltrt = av_clip(get_bits(gbc, 3), 3, 7);
+-+                hdr->surround_mix_level      = av_clip(get_bits(gbc, 3), 3, 7);
+-+            }
+-+        }
+-+
+-+        /* lfe mix level */
+-+        if (hdr->lfe_on && (hdr->lfe_mix_level_exists = get_bits1(gbc))) {
+-+            hdr->lfe_mix_level = get_bits(gbc, 5);
+-+        }
+-+
+-+        /* info for mixing with other streams and substreams */
+-+        if (hdr->frame_type == EAC3_FRAME_TYPE_INDEPENDENT) {
+-+            for (int i = 0; i < (hdr->channel_mode ? 1 : 2); i++) {
+-+                // TODO: apply program scale factor
+-+                if (get_bits1(gbc)) {
+-+                    skip_bits(gbc, 6);  // skip program scale factor
+-+                }
+-+            }
+-+            if (get_bits1(gbc)) {
+-+                skip_bits(gbc, 6);  // skip external program scale factor
+-+            }
+-+            /* skip mixing parameter data */
+-+            switch(get_bits(gbc, 2)) {
+-+                case 1: skip_bits(gbc, 5);  break;
+-+                case 2: skip_bits(gbc, 12); break;
+-+                case 3: {
+-+                    int mix_data_size = (get_bits(gbc, 5) + 2) << 3;
+-+                    skip_bits_long(gbc, mix_data_size);
+-+                    break;
+-+                }
+-+            }
+-+            /* skip pan information for mono or dual mono source */
+-+            if (hdr->channel_mode < AC3_CHMODE_STEREO) {
+-+                for (int i = 0; i < (hdr->channel_mode ? 1 : 2); i++) {
+-+                    if (get_bits1(gbc)) {
+-+                        /* note: this is not in the ATSC A/52B specification
+-+                           reference: ETSI TS 102 366 V1.1.1
+-+                                      section: E.1.3.1.25 */
+-+                        skip_bits(gbc, 8);  // skip pan mean direction index
+-+                        skip_bits(gbc, 6);  // skip reserved paninfo bits
+-+                    }
+-+                }
+-+            }
+-+            /* skip mixing configuration information */
+-+            if (get_bits1(gbc)) {
+-+                for (int i = 0; i < hdr->num_blocks; i++) {
+-+                    if (hdr->num_blocks == 1 || get_bits1(gbc)) {
+-+                        skip_bits(gbc, 5);
+-+                    }
+-+                }
+-+            }
+-+        }
+-+    }
+-+
+-+    /* informational metadata */
+-+    if (get_bits1(gbc)) {
+-+        hdr->bitstream_mode = get_bits(gbc, 3);
+-+        skip_bits(gbc, 2); // skip copyright bit and original bitstream bit
+-+        if (hdr->channel_mode == AC3_CHMODE_STEREO) {
+-+            hdr->dolby_surround_mode  = get_bits(gbc, 2);
+-+            hdr->dolby_headphone_mode = get_bits(gbc, 2);
+-+        }
+-+        if (hdr->channel_mode >= AC3_CHMODE_2F2R) {
+-+            hdr->dolby_surround_ex_mode = get_bits(gbc, 2);
+-+        }
+-+        for (int i = 0; i < (hdr->channel_mode ? 1 : 2); i++) {
+-+            if (get_bits1(gbc)) {
+-+                skip_bits(gbc, 8); // skip mix level, room type, and A/D converter type
+-+            }
+-+        }
+-+        if (hdr->sr_code != EAC3_SR_CODE_REDUCED) {
+-+            skip_bits1(gbc); // skip source sample rate code
+-+        }
+-+    }
+-+
+-+    /* converter synchronization flag
+-+       If frames are less than six blocks, this bit should be turned on
+-+       once every 6 blocks to indicate the start of a frame set.
+-+       reference: RFC 4598, Section 2.1.3  Frame Sets */
+-+    if (hdr->frame_type == EAC3_FRAME_TYPE_INDEPENDENT && hdr->num_blocks != 6) {
+-+        skip_bits1(gbc); // skip converter synchronization flag
+-+    }
+-+
+-+    /* original frame size code if this stream was converted from AC-3 */
+-+    if (hdr->frame_type == EAC3_FRAME_TYPE_AC3_CONVERT &&
+-+            (hdr->num_blocks == 6 || get_bits1(gbc))) {
+-+        skip_bits(gbc, 6); // skip frame size code
+-+    }
+-+
+-+    /* additional bitstream info */
+-+    if (get_bits1(gbc)) {
+-+        int addbsil = get_bits(gbc, 6);
+-+        for (int i = 0; i < addbsil + 1; i++) {
+-+            if (i == 0) {
+-+                /* In this 8 bit chunk, the LSB is equal to flag_ec3_extension_type_a
+-+                   which can be used to detect Atmos presence */
+-+                skip_bits(gbc, 7);
+-+                hdr->eac3_extension_type_a = get_bits1(gbc);
+-+                if (hdr->eac3_extension_type_a) {
+-+                    hdr->complexity_index_type_a = get_bits(gbc, 8);
+-+                    i++;
+-+                }
+-+            } else {
+-+                skip_bits(gbc, 8); // skip additional bit stream info
+-+            }
+-+        }
+-+    }
+-+
+-+    return 0;
+-+}
+-+
+- int ff_ac3_parse_header(GetBitContext *gbc, AC3HeaderInfo *hdr)
+- {
+-     int frame_size_code;
+-@@ -133,6 +344,10 @@ int ff_ac3_parse_header(GetBitContext *gbc, AC3HeaderInfo *hdr)
+-         hdr->frame_size = ff_ac3_frame_size_tab[frame_size_code][hdr->sr_code] * 2;
+-         hdr->frame_type = EAC3_FRAME_TYPE_AC3_CONVERT; //EAC3_FRAME_TYPE_INDEPENDENT;
+-         hdr->substreamid = 0;
+-+
+-+        int ret = ac3_parse_header(gbc, hdr);
+-+        if (ret < 0)
+-+            return ret;
+-     } else {
+-         /* Enhanced AC-3 */
+-         hdr->crc1 = 0;
+-@@ -165,6 +380,10 @@ int ff_ac3_parse_header(GetBitContext *gbc, AC3HeaderInfo *hdr)
+-         hdr->bit_rate = 8LL * hdr->frame_size * hdr->sample_rate /
+-                         (hdr->num_blocks * 256);
+-         hdr->channels = ff_ac3_channels_tab[hdr->channel_mode] + hdr->lfe_on;
+-+
+-+        int ret = eac3_parse_header(gbc, hdr);
+-+        if (ret < 0)
+-+            return ret;
+-     }
+-     hdr->channel_layout = ff_ac3_channel_layout_tab[hdr->channel_mode];
+-     if (hdr->lfe_on)
+-@@ -202,9 +421,13 @@ int av_ac3_parse_header(const uint8_t *buf, size_t size,
+- {
+-     GetBitContext gb;
+-     AC3HeaderInfo hdr;
+-+    uint8_t tmp[32 + AV_INPUT_BUFFER_PADDING_SIZE];
+-     int err;
+- 
+--    err = init_get_bits8(&gb, buf, size);
+-+    size = FFMIN(32, size);
+-+    memcpy(tmp, buf, size);
+-+    memset(tmp + size, 0, AV_INPUT_BUFFER_PADDING_SIZE);
+-+    err = init_get_bits8(&gb, tmp, size);
+-     if (err < 0)
+-         return AVERROR_INVALIDDATA;
+-     err = ff_ac3_parse_header(&gb, &hdr);
+-diff --git a/libavcodec/ac3_parser_internal.h b/libavcodec/ac3_parser_internal.h
+-index 46814bfb1f..ab5df34003 100644
+---- a/libavcodec/ac3_parser_internal.h
+-+++ b/libavcodec/ac3_parser_internal.h
+-@@ -46,6 +46,7 @@ typedef struct AC3HeaderInfo {
+-     int substreamid;                        ///< substream identification
+-     int center_mix_level;                   ///< Center mix level index
+-     int surround_mix_level;                 ///< Surround mix level index
+-+    uint8_t channel_map_present;
+-     uint16_t channel_map;
+-     int num_blocks;                         ///< number of audio blocks
+-     int dolby_surround_mode;
+-@@ -62,6 +63,23 @@ typedef struct AC3HeaderInfo {
+-     uint64_t channel_layout;
+-     int8_t ac3_bit_rate_code;
+-     /** @} */
+-+
+-+    /** @name enhanced eac3 extension coded elements
+-+     * @{
+-+     */
+-+    int8_t dialog_normalization[2];
+-+    uint8_t compression_exists[2];
+-+    uint8_t heavy_dynamic_range[2];
+-+    uint8_t center_mix_level_ltrt;              ///< Center mix level index
+-+    uint8_t surround_mix_level_ltrt;            ///< Surround mix level index
+-+    uint8_t dolby_headphone_mode;
+-+    uint8_t dolby_surround_ex_mode;
+-+    uint8_t lfe_mix_level_exists;
+-+    uint8_t lfe_mix_level;
+-+    uint8_t preferred_downmix;
+-+    uint8_t eac3_extension_type_a;
+-+    uint8_t complexity_index_type_a;
+-+    /** @} */
+- } AC3HeaderInfo;
+- 
+- typedef enum {
+-@@ -71,6 +89,7 @@ typedef enum {
+-     AC3_PARSE_ERROR_FRAME_SIZE  = -0x4030c0a,
+-     AC3_PARSE_ERROR_FRAME_TYPE  = -0x5030c0a,
+-     AC3_PARSE_ERROR_CRC         = -0x6030c0a,
+-+    AC3_PARSE_ERROR_CHANNEL_MAP = -0x7030c0a,
+- } AC3ParseError;
+- 
+- /**
+-diff --git a/libavcodec/ac3dec.c b/libavcodec/ac3dec.c
+-index 3cc20f32a9..fcd165057d 100644
+---- a/libavcodec/ac3dec.c
+-+++ b/libavcodec/ac3dec.c
+-@@ -252,72 +252,6 @@ static av_cold int ac3_decode_init(AVCodecContext *avctx)
+-     return 0;
+- }
+- 
+--/**
+-- * Parse the 'sync info' and 'bit stream info' from the AC-3 bitstream.
+-- * GetBitContext within AC3DecodeContext must point to
+-- * the start of the synchronized AC-3 bitstream.
+-- */
+--static int ac3_parse_header(AC3DecodeContext *s)
+--{
+--    GetBitContext *gbc = &s->gbc;
+--    int i;
+--
+--    /* read the rest of the bsi. read twice for dual mono mode. */
+--    i = !s->channel_mode;
+--    do {
+--        s->dialog_normalization[(!s->channel_mode)-i] = -get_bits(gbc, 5);
+--        if (s->dialog_normalization[(!s->channel_mode)-i] == 0) {
+--            s->dialog_normalization[(!s->channel_mode)-i] = -31;
+--        }
+--        if (s->target_level != 0) {
+--            s->level_gain[(!s->channel_mode)-i] = powf(2.0f,
+--                (float)(s->target_level -
+--                s->dialog_normalization[(!s->channel_mode)-i])/6.0f);
+--        }
+--        if (s->compression_exists[(!s->channel_mode)-i] = get_bits1(gbc)) {
+--            s->heavy_dynamic_range[(!s->channel_mode)-i] =
+--                AC3_HEAVY_RANGE(get_bits(gbc, 8));
+--        }
+--        if (get_bits1(gbc))
+--            skip_bits(gbc, 8); //skip language code
+--        if (get_bits1(gbc))
+--            skip_bits(gbc, 7); //skip audio production information
+--    } while (i--);
+--
+--    skip_bits(gbc, 2); //skip copyright bit and original bitstream bit
+--
+--    /* skip the timecodes or parse the Alternate Bit Stream Syntax */
+--    if (s->bitstream_id != 6) {
+--        if (get_bits1(gbc))
+--            skip_bits(gbc, 14); //skip timecode1
+--        if (get_bits1(gbc))
+--            skip_bits(gbc, 14); //skip timecode2
+--    } else {
+--        if (get_bits1(gbc)) {
+--            s->preferred_downmix       = get_bits(gbc, 2);
+--            s->center_mix_level_ltrt   = get_bits(gbc, 3);
+--            s->surround_mix_level_ltrt = av_clip(get_bits(gbc, 3), 3, 7);
+--            s->center_mix_level        = get_bits(gbc, 3);
+--            s->surround_mix_level      = av_clip(get_bits(gbc, 3), 3, 7);
+--        }
+--        if (get_bits1(gbc)) {
+--            s->dolby_surround_ex_mode = get_bits(gbc, 2);
+--            s->dolby_headphone_mode   = get_bits(gbc, 2);
+--            skip_bits(gbc, 10); // skip adconvtyp (1), xbsi2 (8), encinfo (1)
+--        }
+--    }
+--
+--    /* skip additional bitstream info */
+--    if (get_bits1(gbc)) {
+--        i = get_bits(gbc, 6);
+--        do {
+--            skip_bits(gbc, 8);
+--        } while (i--);
+--    }
+--
+--    return 0;
+--}
+--
+- /**
+-  * Common function to parse AC-3 or E-AC-3 frame header
+-  */
+-@@ -375,10 +309,25 @@ static int parse_frame_header(AC3DecodeContext *s)
+-         s->dba_syntax            = 1;
+-         s->skip_syntax           = 1;
+-         memset(s->channel_uses_aht, 0, sizeof(s->channel_uses_aht));
+--        return ac3_parse_header(s);
+-+        /* volume control params */
+-+        for (int i = 0; i < (s->channel_mode ? 1 : 2); i++) {
+-+            s->dialog_normalization[i] = hdr.dialog_normalization[i];
+-+            if (s->dialog_normalization[i] == 0) {
+-+                s->dialog_normalization[i] = -31;
+-+            }
+-+            if (s->target_level != 0) {
+-+                s->level_gain[i] = powf(2.0f,
+-+                    (float)(s->target_level - s->dialog_normalization[i])/6.0f);
+-+            }
+-+            s->compression_exists[i] = hdr.compression_exists[i];
+-+            if (s->compression_exists[i]) {
+-+                s->heavy_dynamic_range[i] = AC3_HEAVY_RANGE(hdr.heavy_dynamic_range[i]);
+-+            }
+-+        }
+-+        return 0;
+-     } else if (CONFIG_EAC3_DECODER) {
+-         s->eac3 = 1;
+--        return ff_eac3_parse_header(s);
+-+        return ff_eac3_parse_header(s, &hdr);
+-     } else {
+-         av_log(s->avctx, AV_LOG_ERROR, "E-AC-3 support not compiled in\n");
+-         return AVERROR(ENOSYS);
+-@@ -1562,6 +1511,9 @@ dependent_frame:
+-                 av_log(avctx, AV_LOG_ERROR, "invalid frame type\n");
+-             }
+-             break;
+-+        case AC3_PARSE_ERROR_CHANNEL_MAP:
+-+            av_log(avctx, AV_LOG_ERROR, "invalid channel map\n");
+-+            return AVERROR_INVALIDDATA;
+-         case AC3_PARSE_ERROR_CRC:
+-             break;
+-         default: // Normal AVERROR do not try to recover.
+-diff --git a/libavcodec/ac3dec.h b/libavcodec/ac3dec.h
+-index 98de7b5abf..863651c561 100644
+---- a/libavcodec/ac3dec.h
+-+++ b/libavcodec/ac3dec.h
+-@@ -255,11 +255,12 @@ typedef struct AC3DecodeContext {
+-     AVChannelLayout downmix_layout;
+- } AC3DecodeContext;
+- 
+-+struct AC3HeaderInfo;
+- /**
+-  * Parse the E-AC-3 frame header.
+-  * This parses both the bit stream info and audio frame header.
+-  */
+--static int ff_eac3_parse_header(AC3DecodeContext *s);
+-+static int ff_eac3_parse_header(AC3DecodeContext *s, const struct AC3HeaderInfo *hdr);
+- 
+- /**
+-  * Decode mantissas in a single channel for the entire frame.
+-diff --git a/libavcodec/ac3defs.h b/libavcodec/ac3defs.h
+-index ff92f0ac4a..508f4d93f6 100644
+---- a/libavcodec/ac3defs.h
+-+++ b/libavcodec/ac3defs.h
+-@@ -34,6 +34,8 @@
+- #define AC3_CRITICAL_BANDS 50
+- #define AC3_MAX_CPL_BANDS  18
+- 
+-+#define EAC3_SR_CODE_REDUCED 3
+-+
+- /* exponent encoding strategy */
+- #define EXP_REUSE 0
+- #define EXP_NEW   1
+-diff --git a/libavcodec/eac3dec.c b/libavcodec/eac3dec.c
+-index 2b3bffda6e..c5095b1917 100644
+---- a/libavcodec/eac3dec.c
+-+++ b/libavcodec/eac3dec.c
+-@@ -53,8 +53,6 @@ typedef enum {
+-     EAC3_GAQ_124
+- } EAC3GaqMode;
+- 
+--#define EAC3_SR_CODE_REDUCED  3
+--
+- static void ff_eac3_apply_spectral_extension(AC3DecodeContext *s)
+- {
+-     int bin, bnd, ch, i;
+-@@ -287,7 +285,7 @@ static void ff_eac3_decode_transform_coeffs_aht_ch(AC3DecodeContext *s, int ch)
+-     }
+- }
+- 
+--static int ff_eac3_parse_header(AC3DecodeContext *s)
+-+static int ff_eac3_parse_header(AC3DecodeContext *s, const AC3HeaderInfo *hdr)
+- {
+-     int i, blk, ch;
+-     int ac3_exponent_strategy, parse_aht_info, parse_spx_atten_data;
+-@@ -323,11 +321,10 @@ static int ff_eac3_parse_header(AC3DecodeContext *s)
+-         avpriv_request_sample(s->avctx, "Reduced sampling rate");
+-         return AVERROR_PATCHWELCOME;
+-     }
+--    skip_bits(gbc, 5); // skip bitstream id
+- 
+-     /* volume control params */
+-     for (i = 0; i < (s->channel_mode ? 1 : 2); i++) {
+--        s->dialog_normalization[i] = -get_bits(gbc, 5);
+-+        s->dialog_normalization[i] = hdr->dialog_normalization[i];
+-         if (s->dialog_normalization[i] == 0) {
+-             s->dialog_normalization[i] = -31;
+-         }
+-@@ -335,147 +332,30 @@ static int ff_eac3_parse_header(AC3DecodeContext *s)
+-             s->level_gain[i] = powf(2.0f,
+-                 (float)(s->target_level - s->dialog_normalization[i])/6.0f);
+-         }
+--        s->compression_exists[i] = get_bits1(gbc);
+--        if (s->compression_exists[i]) {
+--            s->heavy_dynamic_range[i] = AC3_HEAVY_RANGE(get_bits(gbc, 8));
+-+        if (hdr->compression_exists[i]) {
+-+            s->heavy_dynamic_range[i] = AC3_HEAVY_RANGE(hdr->heavy_dynamic_range[i]);
+-         }
+-     }
+- 
+--    /* dependent stream channel map */
+--    if (s->frame_type == EAC3_FRAME_TYPE_DEPENDENT) {
+--        if (get_bits1(gbc)) {
+--            int64_t channel_layout = 0;
+--            int channel_map = get_bits(gbc, 16);
+--            av_log(s->avctx, AV_LOG_DEBUG, "channel_map: %0X\n", channel_map);
+--
+--            for (i = 0; i < 16; i++)
+--                if (channel_map & (1 << (EAC3_MAX_CHANNELS - i - 1)))
+--                    channel_layout |= ff_eac3_custom_channel_map_locations[i][1];
+--
+--            if (av_popcount64(channel_layout) > EAC3_MAX_CHANNELS) {
+--                return AVERROR_INVALIDDATA;
+--            }
+--            s->channel_map = channel_map;
+--        }
+--    }
+-+    s->channel_map = hdr->channel_map;
+- 
+-     /* mixing metadata */
+--    if (get_bits1(gbc)) {
+--        /* center and surround mix levels */
+--        if (s->channel_mode > AC3_CHMODE_STEREO) {
+--            s->preferred_downmix = get_bits(gbc, 2);
+--            if (s->channel_mode & 1) {
+--                /* if three front channels exist */
+--                s->center_mix_level_ltrt = get_bits(gbc, 3);
+--                s->center_mix_level      = get_bits(gbc, 3);
+--            }
+--            if (s->channel_mode & 4) {
+--                /* if a surround channel exists */
+--                s->surround_mix_level_ltrt = av_clip(get_bits(gbc, 3), 3, 7);
+--                s->surround_mix_level      = av_clip(get_bits(gbc, 3), 3, 7);
+--            }
+--        }
+--
+--        /* lfe mix level */
+--        if (s->lfe_on && (s->lfe_mix_level_exists = get_bits1(gbc))) {
+--            s->lfe_mix_level = get_bits(gbc, 5);
+--        }
+--
+--        /* info for mixing with other streams and substreams */
+--        if (s->frame_type == EAC3_FRAME_TYPE_INDEPENDENT) {
+--            for (i = 0; i < (s->channel_mode ? 1 : 2); i++) {
+--                // TODO: apply program scale factor
+--                if (get_bits1(gbc)) {
+--                    skip_bits(gbc, 6);  // skip program scale factor
+--                }
+--            }
+--            if (get_bits1(gbc)) {
+--                skip_bits(gbc, 6);  // skip external program scale factor
+--            }
+--            /* skip mixing parameter data */
+--            switch(get_bits(gbc, 2)) {
+--                case 1: skip_bits(gbc, 5);  break;
+--                case 2: skip_bits(gbc, 12); break;
+--                case 3: {
+--                    int mix_data_size = (get_bits(gbc, 5) + 2) << 3;
+--                    skip_bits_long(gbc, mix_data_size);
+--                    break;
+--                }
+--            }
+--            /* skip pan information for mono or dual mono source */
+--            if (s->channel_mode < AC3_CHMODE_STEREO) {
+--                for (i = 0; i < (s->channel_mode ? 1 : 2); i++) {
+--                    if (get_bits1(gbc)) {
+--                        /* note: this is not in the ATSC A/52B specification
+--                           reference: ETSI TS 102 366 V1.1.1
+--                                      section: E.1.3.1.25 */
+--                        skip_bits(gbc, 8);  // skip pan mean direction index
+--                        skip_bits(gbc, 6);  // skip reserved paninfo bits
+--                    }
+--                }
+--            }
+--            /* skip mixing configuration information */
+--            if (get_bits1(gbc)) {
+--                for (blk = 0; blk < s->num_blocks; blk++) {
+--                    if (s->num_blocks == 1 || get_bits1(gbc)) {
+--                        skip_bits(gbc, 5);
+--                    }
+--                }
+--            }
+--        }
+--    }
+-+    s->preferred_downmix       = hdr->preferred_downmix;
+-+    s->center_mix_level_ltrt   = hdr->center_mix_level_ltrt;
+-+    s->center_mix_level        = hdr->center_mix_level;
+-+    s->surround_mix_level_ltrt = hdr->surround_mix_level_ltrt;
+-+    s->surround_mix_level      = hdr->surround_mix_level;
+-+    s->lfe_mix_level_exists    = hdr->lfe_mix_level_exists;
+-+    s->lfe_mix_level           = hdr->lfe_mix_level;
+-+    s->dolby_surround_mode     = hdr->dolby_surround_mode;
+-+    s->dolby_headphone_mode    = hdr->dolby_headphone_mode;
+-+    s->dolby_surround_ex_mode  = hdr->dolby_surround_ex_mode;
+- 
+-     /* informational metadata */
+--    if (get_bits1(gbc)) {
+--        s->bitstream_mode = get_bits(gbc, 3);
+--        skip_bits(gbc, 2); // skip copyright bit and original bitstream bit
+--        if (s->channel_mode == AC3_CHMODE_STEREO) {
+--            s->dolby_surround_mode  = get_bits(gbc, 2);
+--            s->dolby_headphone_mode = get_bits(gbc, 2);
+--        }
+--        if (s->channel_mode >= AC3_CHMODE_2F2R) {
+--            s->dolby_surround_ex_mode = get_bits(gbc, 2);
+--        }
+--        for (i = 0; i < (s->channel_mode ? 1 : 2); i++) {
+--            if (get_bits1(gbc)) {
+--                skip_bits(gbc, 8); // skip mix level, room type, and A/D converter type
+--            }
+--        }
+--        if (s->bit_alloc_params.sr_code != EAC3_SR_CODE_REDUCED) {
+--            skip_bits1(gbc); // skip source sample rate code
+--        }
+--    }
+--
+--    /* converter synchronization flag
+--       If frames are less than six blocks, this bit should be turned on
+--       once every 6 blocks to indicate the start of a frame set.
+--       reference: RFC 4598, Section 2.1.3  Frame Sets */
+--    if (s->frame_type == EAC3_FRAME_TYPE_INDEPENDENT && s->num_blocks != 6) {
+--        skip_bits1(gbc); // skip converter synchronization flag
+--    }
+--
+--    /* original frame size code if this stream was converted from AC-3 */
+--    if (s->frame_type == EAC3_FRAME_TYPE_AC3_CONVERT &&
+--            (s->num_blocks == 6 || get_bits1(gbc))) {
+--        skip_bits(gbc, 6); // skip frame size code
+--    }
+-+    s->bitstream_mode = hdr->bitstream_mode;
+- 
+-     /* additional bitstream info */
+--    if (get_bits1(gbc)) {
+--        int addbsil = get_bits(gbc, 6);
+--        for (i = 0; i < addbsil + 1; i++) {
+--            if (i == 0) {
+--                /* In this 8 bit chunk, the LSB is equal to flag_ec3_extension_type_a
+--                   which can be used to detect Atmos presence */
+--                skip_bits(gbc, 7);
+--                if (get_bits1(gbc)) {
+--                    s->eac3_extension_type_a = 1;
+--                }
+--            } else {
+--                skip_bits(gbc, 8); // skip additional bit stream info
+--            }
+--        }
+--    }
+-+    s->eac3_extension_type_a = hdr->eac3_extension_type_a;
+- 
+-     /* audio frame syntax flags, strategy data, and per-frame data */
+- 
+-diff --git a/libavformat/movenc.c b/libavformat/movenc.c
+-index d6effda6fa..73704dcee8 100644
+---- a/libavformat/movenc.c
+-+++ b/libavformat/movenc.c
+-@@ -393,6 +393,8 @@ struct eac3_info {
+-         uint16_t chan_loc;
+-         /* if there is no dependent substream, then one bit reserved instead */
+-     } substream[1]; /* TODO: support 8 independent substreams */
+-+    /* indicates the decoding complexity, 8 bits */
+-+    uint8_t complexity_index_type_a;
+- };
+- 
+- static int mov_write_ac3_tag(AVFormatContext *s, AVIOContext *pb, MOVTrack *track)
+-@@ -474,6 +476,8 @@ static int handle_eac3(MOVMuxContext *mov, AVPacket *pkt, MOVTrack *track)
+-     info->data_rate = FFMAX(info->data_rate, hdr->bit_rate / 1000);
+-     info->ac3_bit_rate_code = FFMAX(info->ac3_bit_rate_code,
+-                                     hdr->ac3_bit_rate_code);
+-+    info->complexity_index_type_a = hdr->complexity_index_type_a;
+-+    
+-     num_blocks = hdr->num_blocks;
+- 
+-     if (!info->ec3_done) {
+-@@ -532,8 +536,6 @@ static int handle_eac3(MOVMuxContext *mov, AVPacket *pkt, MOVTrack *track)
+-             int parent = hdr->substreamid;
+- 
+-             while (cumul_size != pkt->size) {
+--                GetBitContext gbc;
+--                int i;
+-                 ret = avpriv_ac3_parse_header(&hdr, pkt->data + cumul_size, pkt->size - cumul_size);
+-                 if (ret < 0)
+-                     goto end;
+-@@ -544,20 +546,9 @@ static int handle_eac3(MOVMuxContext *mov, AVPacket *pkt, MOVTrack *track)
+-                 info->substream[parent].num_dep_sub++;
+-                 ret /= 8;
+- 
+--                /* header is parsed up to lfeon, but custom channel map may be needed */
+--                init_get_bits8(&gbc, pkt->data + cumul_size + ret, pkt->size - cumul_size - ret);
+--                /* skip bsid */
+--                skip_bits(&gbc, 5);
+--                /* skip volume control params */
+--                for (i = 0; i < (hdr->channel_mode ? 1 : 2); i++) {
+--                    skip_bits(&gbc, 5); // skip dialog normalization
+--                    if (get_bits1(&gbc)) {
+--                        skip_bits(&gbc, 8); // skip compression gain word
+--                    }
+--                }
+-                 /* get the dependent stream channel map, if exists */
+--                if (get_bits1(&gbc))
+--                    info->substream[parent].chan_loc |= (get_bits(&gbc, 16) >> 5) & 0x1f;
+-+                if (hdr->channel_map_present)
+-+                    info->substream[parent].chan_loc |= (hdr->channel_map >> 5) & 0x1f;
+-                 else
+-                     info->substream[parent].chan_loc |= hdr->channel_mode;
+-                 cumul_size += hdr->frame_size;
+-@@ -614,7 +605,7 @@ static int mov_write_eac3_tag(AVFormatContext *s, AVIOContext *pb, MOVTrack *tra
+-     }
+- 
+-     info = track->eac3_priv;
+--    size = 2 + ((34 * (info->num_ind_sub + 1) + 7) >> 3);
+-+    size = 2 + (4 * (info->num_ind_sub + 1)) + (2 * !!info->complexity_index_type_a);
+-     buf = av_malloc(size);
+-     if (!buf) {
+-         return AVERROR(ENOMEM);
+-@@ -631,7 +622,7 @@ static int mov_write_eac3_tag(AVFormatContext *s, AVIOContext *pb, MOVTrack *tra
+-         put_bits(&pbc, 3, info->substream[i].bsmod);
+-         put_bits(&pbc, 3, info->substream[i].acmod);
+-         put_bits(&pbc, 1, info->substream[i].lfeon);
+--        put_bits(&pbc, 5, 0); /* reserved */
+-+        put_bits(&pbc, 3, 0); /* reserved */
+-         put_bits(&pbc, 4, info->substream[i].num_dep_sub);
+-         if (!info->substream[i].num_dep_sub) {
+-             put_bits(&pbc, 1, 0); /* reserved */
+-@@ -639,6 +630,11 @@ static int mov_write_eac3_tag(AVFormatContext *s, AVIOContext *pb, MOVTrack *tra
+-             put_bits(&pbc, 9, info->substream[i].chan_loc);
+-         }
+-     }
+-+    if (info->complexity_index_type_a) {
+-+        put_bits(&pbc, 7, 0); /* reserved */
+-+        put_bits(&pbc, 1, 1); // flag_eac3_extension_type_a
+-+        put_bits(&pbc, 8, info->complexity_index_type_a);
+-+    }
+-     flush_put_bits(&pbc);
+-     size = put_bytes_output(&pbc);
+- 
+--- 
+-2.49.0
+-
+diff --git a/contrib/ffmpeg/module.defs b/contrib/ffmpeg/module.defs
+index aedf2cb2ad02..03f9191c996a 100644
+--- a/contrib/ffmpeg/module.defs
++++ b/contrib/ffmpeg/module.defs
+@@ -12,9 +12,9 @@ endif
+ $(eval $(call import.MODULE.defs,FFMPEG,ffmpeg,$(__deps__)))
+ $(eval $(call import.CONTRIB.defs,FFMPEG))
+ 
+-FFMPEG.FETCH.url    = https://github.com/HandBrake/HandBrake-contribs/releases/download/contribs2/ffmpeg-7.1.1.tar.bz2
+-FFMPEG.FETCH.url   += https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.bz2
+-FFMPEG.FETCH.sha256 = 0c8da2f11579a01e014fc007cbacf5bb4da1d06afd0b43c7f8097ec7c0f143ba
++FFMPEG.FETCH.url    = https://github.com/HandBrake/HandBrake-contribs/releases/download/contribs2/ffmpeg-8.0.tar.bz2
++FFMPEG.FETCH.url   += https://ffmpeg.org/releases/ffmpeg-8.0.tar.bz2
++FFMPEG.FETCH.sha256 = 3e74acc48ddb9f5f70b6747d3f439d51e7cc5497f097d58e5975c84488f4d186
+ 
+ FFMPEG.GCC.args.c_std =
+ 
+@@ -34,7 +34,6 @@ FFMPEG.CONFIGURE.extra = \
+     --disable-filters \
+     --disable-hwaccels \
+     --disable-vdpau \
+-    --disable-postproc \
+     --disable-encoders \
+     --enable-libmp3lame \
+     --enable-encoder=aac \
+diff --git a/libhb/encavcodec.c b/libhb/encavcodec.c
+index bbbe6baf8d87..205ebae1472d 100644
+--- a/libhb/encavcodec.c
++++ b/libhb/encavcodec.c
+@@ -1614,7 +1614,7 @@ static int apply_encoder_level(AVCodecContext *context, AVDictionary **av_opts,
+             break;
+     }
+ 
+-    context->level = FF_LEVEL_UNKNOWN;
++    context->level = AV_FIELD_UNKNOWN;
+ 
+     if (level_names == NULL || level_values == NULL)
+     {
+diff --git a/libhb/encavcodecaudio.c b/libhb/encavcodecaudio.c
+index 27793daf478a..e3e7cac61bfa 100644
+--- a/libhb/encavcodecaudio.c
++++ b/libhb/encavcodecaudio.c
+@@ -272,7 +272,7 @@ static int encavcodecaInit(hb_work_object_t *w, hb_job_t *job)
+     pv->input_buf         = malloc(pv->input_samples * sizeof(float));
+     // Some encoders in libav (e.g. fdk-aac) fail if the output buffer
+     // size is not some minimum value.  8K seems to be enough :(
+-    pv->max_output_bytes  = MAX(AV_INPUT_BUFFER_MIN_SIZE,
++    pv->max_output_bytes  = MAX(16384,
+                                 (pv->input_samples *
+                                  av_get_bytes_per_sample(context->sample_fmt)));
+ 
+diff --git a/libhb/hbavfilter.c b/libhb/hbavfilter.c
+index d8e11bdf6abb..76d3680f0eff 100644
+--- a/libhb/hbavfilter.c
++++ b/libhb/hbavfilter.c
+@@ -62,71 +62,54 @@ hb_avfilter_graph_init(hb_value_t * settings, hb_filter_init_t * init)
+ #endif
+ 
+     // Build filter input
++
++    if (init->hw_pix_fmt != AV_PIX_FMT_NONE)
+     {
+-        enum AVPixelFormat pix_fmt = init->pix_fmt;
++        int initial_pool_size = init->hw_pix_fmt == AV_PIX_FMT_QSV ? 32 : 0;
++
++        par = av_buffersrc_parameters_alloc();
++        par->format = init->hw_pix_fmt;
+         if (init->hw_pix_fmt == AV_PIX_FMT_QSV)
+         {
+-            par = av_buffersrc_parameters_alloc();
+-            par->format = init->hw_pix_fmt;
+-            // TODO: qsv_vpp changes time_base, adapt settings to hb pipeline
++            // TODO: qsv_vpp changes time_base
++            // adapt settings to hb pipeline
+             par->frame_rate.num = init->time_base.den;
+             par->frame_rate.den = init->time_base.num;
+-
+-            par->width = init->geometry.width;
+-            par->height = init->geometry.height;
+-
+-            par->sample_aspect_ratio.num = init->geometry.par.num;
+-            par->sample_aspect_ratio.den = init->geometry.par.den;
+-
+-            par->time_base.num = init->time_base.num;
+-            par->time_base.den = init->time_base.den;
+-            par->hw_frames_ctx = hb_hwaccel_init_hw_frames_ctx((AVBufferRef*)init->job->hw_device_ctx,
+-                                                    init->pix_fmt,
+-                                                    init->hw_pix_fmt,
+-                                                    par->width,
+-                                                    par->height,
+-                                                            32);
+-            if (!par->hw_frames_ctx)
+-            {   
+-                goto fail;
+-            }
+-            pix_fmt = init->hw_pix_fmt;
+         }
+-        else if (init->hw_pix_fmt == AV_PIX_FMT_CUDA)
++        else
+         {
+-            par = av_buffersrc_parameters_alloc();
+-            par->format = init->hw_pix_fmt;
+-            par->frame_rate.num = init->geometry.par.num;
+-            par->frame_rate.den = init->time_base.den;
+-            par->width = init->geometry.width;
+-            par->height = init->geometry.height;
+-            par->hw_frames_ctx = hb_hwaccel_init_hw_frames_ctx((AVBufferRef*)init->job->hw_device_ctx,
+-                                                    init->pix_fmt,
+-                                                    init->hw_pix_fmt,
+-                                                    par->width,
+-                                                    par->height,
+-                                                             0);
+-            if (!par->hw_frames_ctx)
+-            {   
+-                goto fail;
+-            }
+-            par->sample_aspect_ratio.num = init->geometry.par.num;
+-            par->sample_aspect_ratio.den = init->geometry.par.den;
+-            par->time_base.num = init->time_base.num;
+-            par->time_base.den = init->time_base.den;
+-
+-            pix_fmt = init->hw_pix_fmt;
++            par->frame_rate.num = init->vrate.num;
++            par->frame_rate.den = init->vrate.den;
+         }
+-        filter_args = hb_strdup_printf(
++        par->width  = init->geometry.width;
++        par->height = init->geometry.height;
++        par->sample_aspect_ratio.num = init->geometry.par.num;
++        par->sample_aspect_ratio.den = init->geometry.par.den;
++        par->time_base.num = init->time_base.num;
++        par->time_base.den = init->time_base.den;
++        par->color_space = init->color_matrix;
++        par->color_range = init->color_range;
++        par->hw_frames_ctx = hb_hwaccel_init_hw_frames_ctx((AVBufferRef *)init->job->hw_device_ctx,
++                                                           init->pix_fmt,
++                                                           init->hw_pix_fmt,
++                                                           par->width,
++                                                           par->height,
++                                                           initial_pool_size);
++        if (!par->hw_frames_ctx)
++        {
++            goto fail;
++        }
++    }
++
++    filter_args = hb_strdup_printf(
+                     "width=%d:height=%d:pix_fmt=%d:sar=%d/%d:"
+                     "colorspace=%d:range=%d:"
+                     "time_base=%d/%d:frame_rate=%d/%d",
+-                    init->geometry.width, init->geometry.height, pix_fmt,
++                    init->geometry.width, init->geometry.height, init->pix_fmt,
+                     init->geometry.par.num, init->geometry.par.den,
+                     init->color_matrix, init->color_range,
+                     init->time_base.num, init->time_base.den,
+                     init->vrate.num, init->vrate.den);
+-    }
+ 
+     // buffer video source: the decoded frames from the decoder will be inserted here.
+     result = avfilter_graph_create_filter(&graph->input, avfilter_get_by_name("buffer"), "in",
+@@ -137,11 +120,13 @@ hb_avfilter_graph_init(hb_value_t * settings, hb_filter_init_t * init)
+         hb_error("hb_avfilter_graph_init: failed to create buffer source filter");
+         goto fail;
+     }
++
+     if (par)
+     {
+         result = av_buffersrc_parameters_set(graph->input, par);
+         if (result < 0)
+         {
++            hb_error("hb_avfilter_graph_init: failed to set buffer source parameters");
+             goto fail;
+         }
+     }
+diff --git a/libhb/hwaccel.c b/libhb/hwaccel.c
+index de801b8ba2a0..edeaec905521 100644
+--- a/libhb/hwaccel.c
++++ b/libhb/hwaccel.c
+@@ -27,18 +27,21 @@ static hb_buffer_t * upload(void *hw_frames_ctx, hb_buffer_t **buf_in)
+     ret = av_hwframe_get_buffer(hw_frames_ctx, hw_frame, 0);
+     if (ret < 0)
+     {
++        hb_log("hwaccel: failed to get hwframe buffer");
+         goto fail;
+     }
+ 
+     av_frame_copy_props(hw_frame, &frame);
+     if (ret < 0)
+     {
++        hb_log("hwaccel: failed to copy props");
+         goto fail;
+     }
+ 
+     av_hwframe_transfer_data(hw_frame, &frame, 0);
+     if (ret < 0)
+     {
++        hb_log("hwaccel: failed to transfer data");
+         goto fail;
+     }
+ 
