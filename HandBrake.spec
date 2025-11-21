@@ -12,7 +12,7 @@
 
 Name:           HandBrake
 Version:        1.10.2
-Release:        2%{!?tag:.%{date}git%{shortcommit}}%{?dist}
+Release:        3%{!?tag:.%{date}git%{shortcommit}}%{?dist}
 Summary:        An open-source multiplatform video transcoder
 License:        GPLv2+
 URL:            https://handbrake.fr/
@@ -207,6 +207,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %{_bindir}/HandBrakeCLI
 
 %changelog
+* Fri Nov 21 2025 Leigh Scott <leigh123linux@gmail.com> - 1.10.2-3
+- Rebuild for libbluray
+
 * Wed Nov 05 2025 Leigh Scott <leigh123linux@gmail.com> - 1.10.2-2
 - Rebuild for ffmpeg-8.0
 - Apply upstream patch to fix build (rathann)
