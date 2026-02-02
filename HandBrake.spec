@@ -12,7 +12,7 @@
 
 Name:           HandBrake
 Version:        1.10.2
-Release:        4%{!?tag:.%{date}git%{shortcommit}}%{?dist}
+Release:        5%{!?tag:.%{date}git%{shortcommit}}%{?dist}
 Summary:        An open-source multiplatform video transcoder
 License:        GPLv2+
 URL:            https://handbrake.fr/
@@ -207,6 +207,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %{_bindir}/HandBrakeCLI
 
 %changelog
+* Mon Feb 02 2026 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 1.10.2-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_44_Mass_Rebuild
+
 * Fri Dec 12 2025 Nicolas Chauvet <kwizart@gmail.com> - 1.10.2-4
 - Rebuilt for libbluray
 
