@@ -98,17 +98,6 @@ index e073a22..5b53474 100644
  ifeq (1,$(FEATURE.libdovi))
      MODULES += contrib/libdovi
  endif
-@@ -79,10 +54,6 @@ ifneq (,$(filter $(HOST.system),darwin))
-     MODULES += contrib/bin2c
- endif
- 
--ifneq (,$(filter $(HOST.machine),arm64 aarch64))
--    MODULES += contrib/sse2neon
--endif
--
- ifneq (,$(filter $(HOST.system),cygwin mingw))
- ifneq ($(HAS.iconv),1)
-     MODULES += contrib/libiconv
 diff -up HandBrake-1.10.2/test/module.defs.orig2 HandBrake-1.10.2/test/module.defs
 --- HandBrake-1.10.2/test/module.defs.orig2	2025-09-06 07:23:39.000000000 +0200
 +++ HandBrake-1.10.2/test/module.defs	2025-09-29 20:16:42.072659391 +0200

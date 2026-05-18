@@ -11,8 +11,8 @@
 %global desktop_id fr.handbrake.ghb
 
 Name:           HandBrake
-Version:        1.10.2
-Release:        6%{!?tag:.%{date}git%{shortcommit}}%{?dist}
+Version:        1.11.1
+Release:        1%{?dist}
 Summary:        An open-source multiplatform video transcoder
 License:        GPLv2+
 URL:            https://handbrake.fr/
@@ -50,8 +50,8 @@ Patch7:         %{name}-save-pts-of-incomplete-subtitle.patch
 # and part of
 # https://github.com/HandBrake/HandBrake/commit/6f2cd466ef0e029d9e5a51ac8640c3ab64e212f6
 Patch8:         %{name}-remove-ITU-T.35-support.patch
-# https://github.com/HandBrake/HandBrake/commit/c7867ba49bb9fc22414170c89f9834d4442a8642
-Patch9:         %{name}-ffmpeg8.patch
+# https://salsa.debian.org/multimedia-team/handbrake/-/blob/master/debian/patches/0006-Set-extended_crf_qindex_offset-only-for-SVT-AV1-4.patch
+Patch9:         %{name}-Set-extended_crf_qindex_offset-only-for-SVT-AV1-4.patch
 
 BuildRequires:  cmake
 BuildRequires:  desktop-file-utils
@@ -207,6 +207,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{desktop_id}.
 %{_bindir}/HandBrakeCLI
 
 %changelog
+* Mon May 18 2026 Leigh Scott <leigh123linux@gmail.com> - 1.11.1-1
+- Update to 1.11.1
+
 * Mon Apr 20 2026 Leigh Scott <leigh123linux@gmail.com> - 1.10.2-6
 - Rebuild for new x265
 
