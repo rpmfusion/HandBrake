@@ -140,7 +140,7 @@ gpgv2 --keyring %{S:2} %{S:1} %{S:0}
 %patch -P6 -p1
 %patch -P7 -p1
 %patch -P8 -p1
-%patch -P9 -p1 -b .ffmpeg8
+%patch -P9 -p1
 
 # Use system libraries in place of bundled ones
 for module in fdk-aac ffmpeg libdvdnav libdvdread libbluray %{?_with_vpl:libvpl} nvdec nvenc svt-av1 x265; do
